@@ -4,9 +4,18 @@
 
 **Version 1.0.0**
 
-> **ChatGPT Web Coder는 OpenAI 모델명이 아니라 리포지토리용 workflow/skill 이름입니다.** 특정 모델로 전환하지 않습니다. 실제 추론과 코딩은 일반 ChatGPT 대화에서 현재 활성화된 모델이 수행합니다.
+> **ChatGPT Web Coder는 OpenAI 모델명이 아니라 리포지토리용 workflow/skill 이름입니다.** 특정 모델로 전환하지 않습니다. 실제 추론과 코딩은 일반 ChatGPT 대화에서 현재 활성화된 호환 모델이 수행합니다.
 
 ChatGPT Web Coder는 일반 ChatGPT 웹채팅에서 안정적으로 GitHub 리포지토리를 개발하기 위한 템플릿입니다. GeekNews/Hada 글에서 소개된 핵심 흐름인 **일반 ChatGPT → GitHub → ChatGPT 샌드박스 → GitHub 반영**, 그리고 정상 경로가 부족할 때만 GitHub Actions를 사용하는 방식을 따릅니다.
+
+## 왜 일반 ChatGPT로 코딩하나?
+
+- GitHub access가 있으면 일반 ChatGPT에서도 repo 확인, 변경 계획, 코드 수정, sandbox 검증, commit/PR 반영까지 할 수 있어 매 작업마다 Codex를 열 필요가 없습니다.
+- OpenAI의 현재 코딩 평가에서는 **GPT-5.6 Sol이 GPT-5.6 Luna보다 전반적으로 높게 평가**되어, Sol이 활성화된 일반 ChatGPT에서도 강한 추론·코딩 성능을 활용할 수 있습니다.
+- **Codex는 전용 agent harness가 더 강점**이라 긴 terminal loop, 대규모 repo-wide 수정, 장시간 자율 구현에는 여전히 유리합니다.
+- 일반 ChatGPT와 Codex는 사용량 메커니즘이 다릅니다. 이 workflow는 Codex agentic 사용량을 아끼는 데 유용하지만, OpenAI가 모든 GitHub-assisted chat workflow에 대해 **Codex credit이 정확히 0만큼 차감된다고 명시적으로 보장한 것은 아닙니다.**
+
+실전 기본값: **일반 ChatGPT + ChatGPT Web Coder를 먼저 사용하고, 전용 agent 환경이 실제로 유리한 작업에서만 Codex를 사용합니다.**
 
 ## 권장 구조
 
@@ -123,7 +132,3 @@ AGENTS.md
 ## 이름에 대한 핵심
 
 **ChatGPT Web Coder**라는 이름은 모델이 아니라 사용 환경과 workflow를 설명하기 위해 선택했습니다. 향후 ChatGPT 모델이 바뀌어도 이 skill의 구조는 그대로 사용할 수 있습니다.
-
-## 라이선스
-
-MIT. 기존 upstream 저작권 표기는 `LICENSE`에 보존합니다.
