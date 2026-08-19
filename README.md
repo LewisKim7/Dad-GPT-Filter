@@ -4,9 +4,18 @@
 
 **Version 1.0.0**
 
-> **ChatGPT Web Coder is a repository workflow/skill, not an OpenAI model.** It does not switch ChatGPT to a model named Luna, Codex or anything else. The reasoning and coding are performed by whichever model is active in the ordinary ChatGPT conversation.
+> **ChatGPT Web Coder is a repository workflow/skill, not an OpenAI model.** It does not select or switch models. The reasoning and coding are performed by whichever compatible model is active in the ordinary ChatGPT conversation.
 
 ChatGPT Web Coder is a repository template for reliable software development from ordinary ChatGPT web chat. It follows the workflow introduced in the GeekNews/Hada article: ordinary ChatGPT → GitHub → ChatGPT sandbox → GitHub publication, with GitHub Actions used only when the normal path is insufficient.
+
+## Why use ordinary ChatGPT for coding?
+
+- With GitHub access, ordinary ChatGPT can inspect repositories, plan changes, edit code, verify work in the sandbox, and publish commits/PRs without opening Codex for every task.
+- OpenAI's current coding evaluations place **GPT-5.6 Sol above GPT-5.6 Luna overall**, so strong reasoning and coding can often stay in ordinary ChatGPT when Sol is active.
+- **Codex still has the stronger dedicated agent harness** for long terminal loops, large repo-wide changes, and sustained autonomous implementation.
+- Ordinary ChatGPT and Codex use different usage mechanisms. This workflow is useful for conserving Codex agentic usage, but OpenAI does **not** explicitly guarantee that every GitHub-assisted chat workflow consumes exactly zero Codex credits.
+
+Practical default: **ordinary ChatGPT + ChatGPT Web Coder first; Codex only when the task genuinely benefits from the dedicated agent environment.**
 
 ## Recommended workflow
 
@@ -129,4 +138,4 @@ The name **ChatGPT Web Coder** deliberately describes the workflow surface rathe
 
 ## License
 
-MIT. The original upstream attribution is preserved in `LICENSE`.
+MIT. See `LICENSE`.
