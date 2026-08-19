@@ -1,7 +1,6 @@
 ---
 name: chatgpt-web-coder
 description: Reliable repository development from ordinary ChatGPT web chat using the chat sandbox first, GitHub as durable source truth, and bounded GitHub Actions only when the normal path is insufficient.
-license: MIT
 compatibility: Requires access to durable repository state. The fully specified ChatGPT Web path requires both the GitHub Plugin and the ChatGPT Codex Connector GitHub App for the target repository. GitHub Actions access is required only when an Actions mission is needed.
 metadata:
   version: "1.0.0"
