@@ -4,6 +4,34 @@
 
 **Version 0.1.1**
 
+## Final setup for this repository
+
+> **Luna Chat Coder is the name of this repository skill/workflow, not the name of the OpenAI model doing the coding.** It does not switch ChatGPT to GPT-5.6 Luna or to Codex. The reasoning/coding is performed by whichever model is active in the ordinary ChatGPT conversation (for example, GPT-5.6 Sol when that is the selected or served model). Model availability can change over time.
+
+This repository is the **single canonical Luna Chat Coder template/master** for this GitHub account. Do not maintain a second central copy.
+
+Recommended workflow:
+
+```text
+Ordinary ChatGPT web conversation
+        ↓
+GitHub Plugin + ChatGPT Codex Connector
+        ↓
+Target repository with Luna Chat Coder skill
+        ↓
+ChatGPT sandbox work container
+(edit → build/test/debug → verify)
+        ↓
+GitHub commit / branch / PR
+        ↓
+GitHub Actions only when the sandbox or normal GitHub path has a real capability gap
+```
+
+- **New projects:** create the project from this repository/template so Luna is already embedded.
+- **Existing projects:** copy `.agents/skills/luna-chat-coder/` once and merge the short Luna entry point from `AGENTS.md` into the project's existing agent instructions.
+- **No global Luna installation is required.**
+- **Do not create permanent GitHub Actions infrastructure just for Luna.** Actions remains a bounded fallback only when the normal sandbox/GitHub path is insufficient.
+
 > AI agents working from this repository should read [`AGENTS.md`](AGENTS.md) first.
 
 Luna Chat Coder is a repository template with an embedded fallback skill for reliable software development from ordinary chat.
