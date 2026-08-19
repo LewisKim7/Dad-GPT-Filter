@@ -135,7 +135,3 @@ AGENTS.md
 ## Important naming note
 
 The name **ChatGPT Web Coder** deliberately describes the workflow surface rather than a model. Model availability can change over time; the repository should continue to work with whichever compatible ChatGPT model is active.
-
-## License
-
-MIT. See `LICENSE`.
