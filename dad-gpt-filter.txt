@@ -1,7 +1,7 @@
 [Adblock Plus 2.0]
 ! Title: Dad GPT Filter
-! Version: 2026-09-26-F0-canary
+! Version: 2026-09-26-F0-sidebar-canary
 ! Expires: 1 hours
-! 목적: (1) 폰이 최신 파일을 받는지 확인 (2) 필터를 비운 상태에서 본문이 복구되는지 확인
-! 반영되면 입력창의 + 버튼만 사라져야 함. 그 외 모든 UI는 원래대로 보여야 함.
-chatgpt.com##[data-testid="composer-plus-btn"]
+! 목적: Samsung Adblock이 최신 GitHub Raw 필터를 실제로 적용하는지 확인
+! 정상 반영되면 왼쪽 사이드바 열기 버튼만 사라지고, 대화 본문/입력창/프로젝트 홈은 그대로 보여야 함.
+chatgpt.com##button[data-testid="open-sidebar-button"]
