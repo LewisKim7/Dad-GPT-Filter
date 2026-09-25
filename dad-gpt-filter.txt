@@ -1,7 +1,27 @@
 [Adblock Plus 2.0]
 ! Title: Dad GPT Filter
-! Version: 2026-09-26-F0-sidebar-canary
-! Expires: 1 hours
-! 목적: Samsung Adblock이 최신 GitHub Raw 필터를 실제로 적용하는지 확인
-! 정상 반영되면 왼쪽 사이드바 열기 버튼만 사라지고, 대화 본문/입력창/프로젝트 홈은 그대로 보여야 함.
-chatgpt.com##button[data-testid="open-sidebar-button"]
+! Version: 2026-09-26-DOM-verified
+! Expires: 1 day
+! 목적: 실제 로그인 세션의 ChatGPT Projects 모바일 DOM에서 확인한 좁은 cosmetic filter만 적용
+! app-shell-sidebar 안의 개인 Chat History와 Chat/Work 전환 UI는 sidebar 자체를 숨겨 제거한다.
+! 대화 timeline/container/form 및 composer 보호 요소에는 cosmetic filter를 적용하지 않는다.
+
+! ChatGPT app shell sidebar와 그것을 여는 정확한 app-shell 버튼
+chatgpt.com###app-shell-sidebar
+chatgpt.com##button[aria-controls="app-shell-sidebar"]
+
+! 프로젝트 상단 아이콘/색상 변경 버튼
+chatgpt.com##button[aria-label="아빠의 GPT의 아이콘과 색상 변경"]
+
+! 프로젝트 홈의 제목/공유 dialog trigger: data-state와 aria-label이 모두 없는 두 버튼만 해당
+chatgpt.com##button[aria-haspopup="dialog"]:not([data-state]):not([aria-label])
+
+! 기존 대화 화면의 공유 버튼
+chatgpt.com##button[aria-label="공유"]
+
+! 대화 화면의 프로젝트 breadcrumb/title link
+chatgpt.com##a[href="/g/g-p-6a7defb2053c8191ac660e89eb8680b6/project"]
+
+! 프로젝트 홈의 Chat/Sources tabs
+chatgpt.com##button[role="tab"][aria-controls$="-chats"]
+chatgpt.com##button[role="tab"][aria-controls$="-sources"]
