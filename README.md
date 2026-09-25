@@ -2,7 +2,7 @@
 
 삼성 인터넷에서 ChatGPT를 보다 단순하고 안전한 형태로 사용할 수 있도록 만든 개인용 UI 필터입니다.
 
-가족용 기기에서 ChatGPT를 사용할 때 사이드바, 이전 대화 기록, 프로젝트 탭 등 불필요한 인터페이스가 실수로 노출되거나 눌리는 일을 줄이는 것이 목적입니다.
+가족용 기기에서 ChatGPT를 사용할 때 사이드바, 이전 대화 기록, 프로젝트 탭, 프로젝트 헤더 및 공유 버튼 등 불필요한 인터페이스가 실수로 노출되거나 눌리는 일을 줄이는 것이 목적입니다.
 
 ## 목적
 
@@ -13,6 +13,8 @@
 - ChatGPT 사이드바 숨김
 - 이전 대화 기록 및 대화 링크 숨김
 - 프로젝트 관련 UI 숨김
+- 프로젝트 헤더 / 프로젝트 이름 영역 숨김
+- 공유 버튼 숨김
 - 사이드바 열기 / 닫기 버튼 숨김
 - 헤더의 일부 드롭다운 UI 숨김
 - 가족용 브라우저에서 보다 단순한 ChatGPT 화면 제공
@@ -50,6 +52,8 @@ https://raw.githubusercontent.com/LewisKim7/Dad-GPT-Filter/main/dad-gpt-filter.t
 - chat history navigation
 - individual history links
 - project-home tabs
+- project header / project identity
+- share controls
 - history-related dialogs
 - selected header popover controls
 
