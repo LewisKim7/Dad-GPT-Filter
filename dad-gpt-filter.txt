@@ -1,33 +1,39 @@
 [Adblock Plus 2.0]
 ! Title: Dad GPT Filter
-! Description: Cosmetic filters for a simplified family-use ChatGPT interface on Samsung Internet
+! Description: Samsung Internet Adblock cosmetic filters for a simplified family-use ChatGPT interface
 ! Version: 2026-09-25
 ! Domain: chatgpt.com
+! Core mobile UI lock
 chatgpt.com##[class*="no-draggable"]
 chatgpt.com##div[class*="relative"][class*="shrink-0"][class*="flex"]
 chatgpt.com##[id*="project-home-tabs"]
+! Sidebar
 chatgpt.com###stage-popover-sidebar
 chatgpt.com##button[data-testid="open-sidebar-button"]
 chatgpt.com##button[data-testid="close-sidebar-button"]
 chatgpt.com##button[data-testid="sidebar-button"]
 chatgpt.com##button[data-testid*="sidebar"]
 chatgpt.com##button[aria-controls*="sidebar"]
-chatgpt.com##nav[aria-label="Chat history"]
-chatgpt.com##[data-testid^="history-item-"]
 chatgpt.com##[data-testid*="sidebar"]
 chatgpt.com##[id*="sidebar"][role="dialog"]
 chatgpt.com##[aria-controls*="sidebar"]
+! History / old conversations
+chatgpt.com##nav[aria-label="Chat history"]
+chatgpt.com##[data-testid^="history-item-"]
 chatgpt.com##[data-testid*="history"]
 chatgpt.com##[id*="history"]
 chatgpt.com##[aria-label*="history"]
 chatgpt.com##nav a[href^="/c/"]
 chatgpt.com##[role="dialog"] a[href^="/c/"]
+! Header / project identity / Chat-Work switch / share
+chatgpt.com##header
+chatgpt.com##[role="banner"]
 chatgpt.com##header [aria-haspopup]
-! Project header / project identity / share controls
-chatgpt.com##header:has([data-testid="share-chat-button"])
-chatgpt.com##header:has(button[aria-label*="공유"])
-chatgpt.com##header:has(button[aria-label*="Share"])
-chatgpt.com##header [href*="/g/g-p-"]
-chatgpt.com##[data-testid="share-chat-button"]
+chatgpt.com##[data-testid*="share"]
 chatgpt.com##button[aria-label*="공유"]
 chatgpt.com##button[aria-label*="Share"]
+chatgpt.com##[href*="/g/g-p-"]
+chatgpt.com##[data-testid*="project-title"]
+chatgpt.com##[data-testid*="project-name"]
+chatgpt.com##[id*="project-title"]
+chatgpt.com##[id*="project-name"]
