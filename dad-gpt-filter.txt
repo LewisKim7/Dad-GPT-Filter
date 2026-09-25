@@ -1,13 +1,9 @@
 [Adblock Plus 2.0]
 ! Title: Dad GPT Filter
 ! Description: Samsung Internet Adblock cosmetic filters for a simplified family-use ChatGPT interface
-! Version: 2026-09-25
+! Version: 2026-09-25-safe
 ! Domain: chatgpt.com
-! Core mobile UI lock
-chatgpt.com##[class*="no-draggable"]
-chatgpt.com##div[class*="relative"][class*="shrink-0"][class*="flex"]
-chatgpt.com##[id*="project-home-tabs"]
-! Sidebar
+! Sidebar controls
 chatgpt.com###stage-popover-sidebar
 chatgpt.com##button[data-testid="open-sidebar-button"]
 chatgpt.com##button[data-testid="close-sidebar-button"]
@@ -25,15 +21,19 @@ chatgpt.com##[id*="history"]
 chatgpt.com##[aria-label*="history"]
 chatgpt.com##nav a[href^="/c/"]
 chatgpt.com##[role="dialog"] a[href^="/c/"]
-! Header / project identity / Chat-Work switch / share
-chatgpt.com##header
-chatgpt.com##[role="banner"]
-chatgpt.com##header [aria-haspopup]
+! Project tabs
+chatgpt.com##[id*="project-home-tabs"]
+! Share / project header actions
+chatgpt.com##[data-testid="share-chat-button"]
 chatgpt.com##[data-testid*="share"]
 chatgpt.com##button[aria-label*="공유"]
 chatgpt.com##button[aria-label*="Share"]
-chatgpt.com##[href*="/g/g-p-"]
+chatgpt.com##[data-testid="thread-header-right-actions"]
+chatgpt.com##[data-testid="thread-header-right-actions-container"]
+chatgpt.com###conversation-header-actions
 chatgpt.com##[data-testid*="project-title"]
 chatgpt.com##[data-testid*="project-name"]
 chatgpt.com##[id*="project-title"]
 chatgpt.com##[id*="project-name"]
+! Chat / Work switch
+chatgpt.com##header [aria-haspopup]
