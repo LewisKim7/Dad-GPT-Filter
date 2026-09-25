@@ -1,6 +1,6 @@
 [Adblock Plus 2.0]
 ! Title: Dad GPT Filter
-! Version: 2026-09-26-DOM-verified
+! Version: 2026-09-26-sidebar-fallback
 ! Expires: 1 day
 ! 목적: 실제 로그인 세션의 ChatGPT Projects 모바일 DOM에서 확인한 좁은 cosmetic filter만 적용
 ! app-shell-sidebar 안의 개인 Chat History와 Chat/Work 전환 UI는 sidebar 자체를 숨겨 제거한다.
@@ -9,6 +9,9 @@
 ! ChatGPT app shell sidebar와 그것을 여는 정확한 app-shell 버튼
 chatgpt.com###app-shell-sidebar
 chatgpt.com##button[aria-controls="app-shell-sidebar"]
+chatgpt.com##button[data-testid="open-sidebar-button"]
+chatgpt.com##button[aria-controls="stage-popover-sidebar"]
+chatgpt.com##button[aria-controls="stage-slideover-sidebar"]
 
 ! 프로젝트 상단 아이콘/색상 변경 버튼
 chatgpt.com##button[aria-label="아빠의 GPT의 아이콘과 색상 변경"]
