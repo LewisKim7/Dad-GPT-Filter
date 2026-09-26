@@ -1,7 +1,7 @@
 [Adblock Plus 2.0]
-! Title: Dad GPT Filter DELIVERY-CANARY
-! Description: Temporary delivery/engine diagnostic for Samsung Internet
-! Version: 2026-09-27-delivery-engine-canary
+! Title: Dad GPT Filter
+! Description: Cosmetic filters for a simplified family-use ChatGPT interface on Samsung Internet
+! Version: 2026-09-27-targeted-ui-final
 ! Domain: chatgpt.com
 
 ! ===== Existing stable rules =====
@@ -25,12 +25,20 @@ chatgpt.com##nav a[href^="/c/"]
 chatgpt.com##[role="dialog"] a[href^="/c/"]
 chatgpt.com##header [aria-haspopup]
 
+! ===== Project Home identity/actions only =====
+chatgpt.com##button[data-testid="project-modal-trigger"]
+chatgpt.com##button[name="project-title"]
+chatgpt.com##button[aria-label="프로젝트 세부 정보 표시"]
+chatgpt.com##button[aria-label="공유"]
+chatgpt.com##button[data-testid="share-chat-button"]
+
+! ===== Existing conversation new-chat control only =====
+chatgpt.com##a[aria-label="새 채팅"][href="/"]
+chatgpt.com##header a[href="/"]
+
 ! Hide Dad GPT project conversation cards/links without touching message timeline
 chatgpt.com##a[href^="/g/g-p-6a7defb2053c8191ac660e89eb8680b6-abbayi-gpt/c/"]
 
-! ===== TEMPORARY DELIVERY / ENGINE CANARY =====
-! WARNING: remove immediately after checking results.
-! If this list is loaded and cosmetic filtering works on ChatGPT, all buttons should disappear.
-chatgpt.com##button
-! Control site: if this list is loaded and cosmetic filtering works generally, Example Domain h1 should disappear.
-example.com##h1
+! ===== Protected composer/message controls =====
+! Intentionally do NOT hide generic button elements.
+! Keep composer, send, +, High, microphone, Voice, and conversation content visible.
