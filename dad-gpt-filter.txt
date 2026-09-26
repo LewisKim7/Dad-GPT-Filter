@@ -1,7 +1,7 @@
 [Adblock Plus 2.0]
 ! Title: Dad GPT Filter
 ! Description: Cosmetic filters for a simplified family-use ChatGPT interface on Samsung Internet
-! Version: 2026-09-26-exp1-diagnostic-matrix
+! Version: 2026-09-26-original-minus-body-killer
 ! Domain: chatgpt.com
 chatgpt.com##[class*="no-draggable"]
 chatgpt.com##[id*="project-home-tabs"]
@@ -25,13 +25,3 @@ chatgpt.com##header [aria-haspopup]
 
 ! Hide Dad GPT project conversation cards/links without touching message timeline
 chatgpt.com##a[href^="/g/g-p-6a7defb2053c8191ac660e89eb8680b6-abbayi-gpt/c/"]
-
-! ===== EXP-1 진단 매트릭스 (각 줄 = 서로 다른 화면 변화 1개, ASCII 전용 + 한글 canary 1개) =====
-! [E1 · 임시 canary] 입력창 + 버튼이 사라지면 → 엔진이 한글 selector를 정상 처리함. 확인 즉시 이 줄 삭제.
-chatgpt.com##button[aria-label="파일 등 추가"]
-! [E2] Project Home 큰 제목 (Whale에선 0x0 hidden이던 desktop-variant 제목 버튼)
-chatgpt.com##button[name="project-title"]
-! [E3] Project Home 초록 아이콘 (desktop-variant 아이콘 버튼)
-chatgpt.com##button[data-testid="project-modal-trigger"]
-! [E4] 기존 대화 연필(새 채팅) — 한글 없이 href만 사용, header 내부 링크 leaf만 매칭
-chatgpt.com##header a[href="/"]
