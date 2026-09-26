@@ -1,7 +1,7 @@
 [Adblock Plus 2.0]
 ! Title: Dad GPT Filter
 ! Description: Cosmetic filters for a simplified family-use ChatGPT interface on Samsung Internet
-! Version: 2026-09-27-hide-noncomposer-buttons
+! Version: 2026-09-27-tag-only-buttons
 ! Domain: chatgpt.com
 
 ! ===== Existing stable sidebar/history rules =====
@@ -25,10 +25,13 @@ chatgpt.com##nav a[href^="/c/"]
 chatgpt.com##[role="dialog"] a[href^="/c/"]
 chatgpt.com##header [aria-haspopup]
 
-! ===== Samsung UI: hide buttons outside composer and message turns =====
-! Proven baseline: generic button hiding works on the actual Samsung Internet variant.
-! This narrows it so composer controls and assistant/user message action buttons remain usable.
-chatgpt.com##button:not(form[data-type="unified-composer"] button):not(section[data-testid^="conversation-turn"] button)
+! ===== Samsung UI: 속성(attribute) 없는 태그 전용 규칙 =====
+! 실측: 태그만 쓴 규칙(button, h1)은 적용됨 / 속성 [..] 을 쓴 규칙은 유형 무관 전부 미적용.
+! 따라서 :not() 안에도 속성을 넣지 않는다.
+! 숨김: 입력창(form)과 대화 본문(section) 바깥의 모든 버튼
+!   → Project Home 아이콘·제목·공유·…, 채팅/소스 탭, 대화 화면 연필(새 채팅)
+! 유지: 입력창의 + / High / 마이크 / Voice / 보내기, 답변 아래 복사·읽기 등
+chatgpt.com##button:not(form button):not(section button)
 
-! ===== Protected =====
-! Keep Project conversation list, conversation body, composer, +, High, mic, Voice, send/stop controls.
+! ===== 참고 =====
+! 로그인이 풀리면 로그인 버튼도 숨겨지므로, 재로그인 시에는 Adblock을 잠시 끌 것.
