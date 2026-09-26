@@ -1,25 +1,12 @@
 [Adblock Plus 2.0]
 ! Title: Dad GPT Filter
-! Description: Cosmetic filters for a simplified family-use ChatGPT interface on Samsung Internet
-! Version: 2026-08-15
+! Description: Samsung Internet cosmetic filters for a simplified family-use ChatGPT interface
+! Version: 2026-09-26-sidebar-only
 ! Domain: chatgpt.com
-chatgpt.com##[class*="no-draggable"]
-chatgpt.com##div[class*="relative"][class*="shrink-0"][class*="flex"]
-chatgpt.com##[id*="project-home-tabs"]
+! Scope: hide only the mobile sidebar and its open/close controls.
+! Do not hide headers, project UI, conversation timeline, or composer.
+
 chatgpt.com###stage-popover-sidebar
+chatgpt.com###stage-slideover-sidebar
 chatgpt.com##button[data-testid="open-sidebar-button"]
 chatgpt.com##button[data-testid="close-sidebar-button"]
-chatgpt.com##button[data-testid="sidebar-button"]
-chatgpt.com##button[data-testid*="sidebar"]
-chatgpt.com##button[aria-controls*="sidebar"]
-chatgpt.com##nav[aria-label="Chat history"]
-chatgpt.com##[data-testid^="history-item-"]
-chatgpt.com##[data-testid*="sidebar"]
-chatgpt.com##[id*="sidebar"][role="dialog"]
-chatgpt.com##[aria-controls*="sidebar"]
-chatgpt.com##[data-testid*="history"]
-chatgpt.com##[id*="history"]
-chatgpt.com##[aria-label*="history"]
-chatgpt.com##nav a[href^="/c/"]
-chatgpt.com##[role="dialog"] a[href^="/c/"]
-chatgpt.com##header [aria-haspopup]
