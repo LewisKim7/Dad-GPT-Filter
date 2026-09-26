@@ -1,42 +1,25 @@
 [Adblock Plus 2.0]
 ! Title: Dad GPT Filter
-! Version: 2026-09-26-mobile-dom-minimal
-! Expires: 1 day
+! Description: Cosmetic filters for a simplified family-use ChatGPT interface on Samsung Internet
+! Version: 2026-08-15
 ! Domain: chatgpt.com
-! 실제 네이버 웨일 모바일 DOM 조사 결과 기반.
-! 원칙: 모바일 헤더/사이드바/공유/프로젝트 탭만 숨기고, timeline/composer는 절대 건드리지 않음.
-
-! ===== 모바일 프로젝트 홈 상단 =====
-! sidebar 버튼 + 중앙 프로젝트 제목 + 프로젝트 세부정보 버튼을 포함한 모바일 fixed header
-chatgpt.com##div[data-fixed-header="less-than-md"]
-
-! ===== 기존 대화 상단 =====
-! sidebar 버튼 + 프로젝트 breadcrumb/icon/title + 새 채팅 + 더보기 버튼을 포함한 conversation header
-chatgpt.com##header#page-header[data-fixed-header="never"]
-
-! ===== 모바일 사이드바 자체 =====
+chatgpt.com##[class*="no-draggable"]
+chatgpt.com##div[class*="relative"][class*="shrink-0"][class*="flex"]
+chatgpt.com##[id*="project-home-tabs"]
 chatgpt.com###stage-popover-sidebar
-chatgpt.com###stage-slideover-sidebar
-
-! ===== 프로젝트 홈 Chat / Sources 탭 =====
-chatgpt.com###project-home-tabs-g-p-6a7defb2053c8191ac660e89eb8680b6-chats
-chatgpt.com###project-home-tabs-g-p-6a7defb2053c8191ac660e89eb8680b6-sources
-
-! ===== 대화 내 공유 UI =====
-chatgpt.com##button[data-testid="share-prompt-link-turn-action-button"]
-chatgpt.com##button[data-testid="share-chat-button"]
-
-! ===== 보호 대상 메모: 아래 요소에는 필터 규칙을 추가하지 말 것 =====
-! [data-scroll-root]
-! section[data-testid^="conversation-turn"]
-! [data-message-author-role]
-! form[data-type="unified-composer"]
-! #prompt-textarea
-! button[data-testid="composer-plus-btn"]
-! button[aria-label="받아쓰기 시작"]
-! button[aria-label="Voice 시작"]
-
-! ===== CUSTOM LIST CANARY (temporary) =====
-! 목적: built-in 광고차단이 아니라 이 GitHub Raw 커스텀 리스트 자체가 실제 Samsung Internet에 로드되는지 확인
-! https://example.com 에서 "Example Domain" 제목(h1)만 숨겨져야 함
-example.com##h1
+chatgpt.com##button[data-testid="open-sidebar-button"]
+chatgpt.com##button[data-testid="close-sidebar-button"]
+chatgpt.com##button[data-testid="sidebar-button"]
+chatgpt.com##button[data-testid*="sidebar"]
+chatgpt.com##button[aria-controls*="sidebar"]
+chatgpt.com##nav[aria-label="Chat history"]
+chatgpt.com##[data-testid^="history-item-"]
+chatgpt.com##[data-testid*="sidebar"]
+chatgpt.com##[id*="sidebar"][role="dialog"]
+chatgpt.com##[aria-controls*="sidebar"]
+chatgpt.com##[data-testid*="history"]
+chatgpt.com##[id*="history"]
+chatgpt.com##[aria-label*="history"]
+chatgpt.com##nav a[href^="/c/"]
+chatgpt.com##[role="dialog"] a[href^="/c/"]
+chatgpt.com##header [aria-haspopup]
