@@ -1,0 +1,5 @@
+[Adblock Plus 2.0]
+! Title: Dad GPT Unicorn Include Canary
+! Purpose: Verify whether regular Unicorn user filters honor !#include with a remote GitHub Raw file.
+! Temporary canary: hides only the composer + button on chatgpt.com.
+chatgpt.com##button[data-testid="composer-plus-btn"]
