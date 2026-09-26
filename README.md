@@ -1,111 +1,80 @@
 # Dad GPT Filter
 
-Samsung Internet에서 ChatGPT를 가족용으로 단순하게 사용할 수 있도록 만든 개인용 UI 필터입니다.
+Samsung Internet에서 ChatGPT Project **"아빠의 GPT"**를 아버지가 단순한 GPT처럼 쓰도록, 불필요한 UI를 숨기는 개인용 cosmetic 필터입니다.
 
-현재 운영 방식은 **Samsung Internet용 Adblock 하나 + GitHub Raw 필터 구독**입니다. ChatGPT UI가 바뀌면 이 저장소의 `dad-gpt-filter.txt`만 수정하며, 휴대폰에 등록한 Raw URL과 파일 경로는 유지합니다.
+## 운영 구조 (고정)
 
-## 현재 정상 동작 상태
+| 항목 | 값 |
+|---|---|
+| 기기 / 브라우저 | Samsung Galaxy / Samsung Internet |
+| 차단기 | Samsung Internet용 Adblock (맞춤 필터 구독) |
+| 필터 Raw URL | `https://raw.githubusercontent.com/LewisKim7/Dad-GPT-Filter/main/dad-gpt-filter.txt` |
+| 대상 Project | `https://chatgpt.com/g/g-p-6a7defb2053c8191ac660e89eb8680b6-abbayi-gpt/project` |
+| 사용 안 함 | Unicorn, Userscript, GitHub Pages, Chrome extension |
 
-**2026-09-26 Samsung Internet 실기기에서 정상 동작 확인.**
+**Raw URL, repo 이름, `dad-gpt-filter.txt` 경로는 절대 바꾸지 않습니다.** UI가 바뀌면 파일 내용만 수정합니다.
 
-현재 확인된 정상 상태는 다음과 같습니다.
+## 현재 상태: Samsung 실기기 성공
 
-- 왼쪽 글로벌 사이드바 열기 버튼 숨김
-- 글로벌 사이드바 및 개인 Chat History 접근 UI 숨김
-- 프로젝트 내부 대화 목록은 유지
-- 기존 대화 본문 정상 표시
-- 새 답변 및 과거 답변 정상 표시
-- 입력창 정상 표시
-- `+`, High, 마이크, Voice 정상 유지
-- 프로젝트 제목/공유 등 대화에 필요한 상단 UI는 유지
+- 실기기 확인: 2026-09-26 KST
+- 버전 문자열: `2026-09-27-tag-only-buttons`
+- 성공 기준 commit: `43e12e81ee52463399bf51ea30e6c76021d91d2c`
+- 핵심 규칙 (이 한 줄이 실제 UI 숨김을 담당):
 
-2026-09-25~26 ChatGPT 웹 UI가 크게 변경된 시점에 기존 필터가 대화 본문까지 숨기는 문제가 발생했습니다. Astra 관련 UI 변경 시점과 겹쳤지만, 두 사건의 직접적인 인과관계는 확인하지 않았습니다.
+```text
+chatgpt.com##button:not(form button):not(section button)
+```
 
-## 2026-09-26 장애 원인 및 해결
+| 숨김 | 유지 |
+|---|---|
+| Project Home 상단 초록 아이콘 · 제목 · 공유 · … | Project 내부 대화 목록 |
+| 채팅 / 소스 탭 | 사용자 · Assistant 메시지 |
+| 기존 대화 상단의 연필(새 채팅) | 입력창, `+`, High, 보내기 |
+| 사이드바 열기 버튼 (form·section 밖 버튼이므로 함께 숨김) | |
 
-문제를 일으킨 핵심 규칙은 아래와 같았습니다.
+원리: ChatGPT의 입력창은 `form`, 대화 한 턴은 `section` 태그 안에 있습니다. 이 두 태그를 **안전 구역**으로 두고, 그 밖의 버튼만 숨깁니다.
+
+## 이 환경의 핵심 사실
+
+| 구분 | 내용 |
+|---|---|
+| 확정 | `chatgpt.com##button` (태그만) → 실기기에서 모든 버튼 숨김 성공 |
+| 확정 | `chatgpt.com##button:not(form button):not(section button)` → 실기기에서 의도대로 성공 |
+| 확정 | 화면에 분명히 존재하는 요소를 겨냥한 속성 selector(`[data-testid=…]`, `[aria-label=…]`, `[href^=…]`, `[name=…]`, `[id*=…]`)가 2026-09-26~27 실험에서 반복적으로 미적용 |
+| 추정 | Samsung Adblock이 속성 selector 규칙을 처리하지 못함 (원인 미확정, [MAINTENANCE.md](MAINTENANCE.md) 참고) |
+
+**그래서 새 규칙은 우선 태그와 태그 구조만으로 만듭니다.** 설계 원칙과 장애 대응 절차는 [MAINTENANCE.md](MAINTENANCE.md)에 있습니다.
+
+현재 `dad-gpt-filter.txt` 상단에는 과거의 attribute/class 기반 규칙이 legacy로 남아 있습니다. **현재 화면이 정상인 동안 임의로 삭제하지 말고**, 새 규칙의 설계 근거로도 사용하지 않습니다. 정리는 반드시 별도 cleanup commit에서 회귀 체크와 함께 수행합니다.
+
+## 절대 재도입하지 말 것
 
 ```text
 chatgpt.com##div[class*="relative"][class*="shrink-0"][class*="flex"]
 ```
 
-새 ChatGPT DOM에서는 이 규칙이 단순한 상단 UI뿐 아니라 실제 conversation timeline 내부 wrapper까지 매칭했습니다. 그 결과 사이드바는 숨겨졌지만 기존 대화에 들어가면 대화 본문 전체가 보이지 않는 문제가 발생했습니다.
+2026-09 UI 변경 후 대화 본문 전체를 숨기는 사고를 일으켰습니다. `relative`, `flex`, `shrink-0` 같은 범용 Tailwind class 조합과 `header`, `main`, `form`, `section`, `div` 통째 숨김도 금지합니다.
 
-해결 방법은 **2026-09-25 수정 직전의 작동하던 필터를 기준으로 위 규칙만 제거**하고, 프로젝트 대화 링크는 별도 selector로 처리하는 방식이었습니다.
+## 필터 업데이트 방법
 
-현재 성공 버전:
+1. `dad-gpt-filter.txt` 수정 후 `! Version:` 갱신 → main에 commit
+2. 휴대폰: Samsung Adblock → 광고 필터 업데이트 → **지금 업데이트**
+3. Samsung Internet에서 ChatGPT 탭 새로고침
+4. [MAINTENANCE.md](MAINTENANCE.md)의 회귀 체크리스트 확인
 
-```text
-! Version: 2026-09-26-original-minus-body-killer
-```
+## 알려진 한계
 
-성공 반영 commit:
+- 로그인이 풀리면 로그인 버튼도 숨겨집니다. **재로그인 시에만 Adblock을 잠시 끄세요.**
+- Voice 종료 버튼, 팝업/모달 버튼, 답변 아래 action 버튼은 ChatGPT DOM이 바뀌면 숨겨질 수 있습니다. 필요하면 MAINTENANCE의 안전 구역 확장 절차를 따릅니다.
+- cosmetic 필터는 화면에서 숨길 뿐, 주소 직접 입력 등으로 다른 화면에 가는 것을 막지는 못합니다.
 
-```text
-677d4e051e988fc2daec65ac70db96f3698eba55
-```
+## 유지보수 인수인계
 
-### 절대 재도입하지 말 것
+몇 달 뒤 GPT/Claude에게 유지보수를 맡길 때는 [HANDOFF-PROMPT.md](HANDOFF-PROMPT.md)를 그대로 사용합니다.
 
-아래 규칙은 현재 ChatGPT UI에서 대화 본문을 숨길 수 있으므로 다시 추가하지 않습니다.
+## 기록
 
-```text
-chatgpt.com##div[class*="relative"][class*="shrink-0"][class*="flex"]
-```
-
-비슷하게 `relative`, `flex`, `shrink-0` 등 범용 Tailwind class 조합으로 컨테이너를 통째로 숨기는 방식은 UI 변경 시 정상 conversation wrapper까지 매칭할 위험이 큽니다.
-
-현재 필터에 남아 있는 기존 규칙은 Samsung Internet 실기기에서 정상 동작을 확인한 상태이므로, 단순한 정리 목적만으로 한꺼번에 재작성하지 않습니다.
-
-## 고정 Raw URL
-
-```text
-https://raw.githubusercontent.com/LewisKim7/Dad-GPT-Filter/main/dad-gpt-filter.txt
-```
-
-앞으로도 위 URL을 Samsung Internet용 Adblock의 맞춤 필터 목록에 계속 사용합니다. **Raw URL, repo 이름, `dad-gpt-filter.txt` 경로는 변경하지 않습니다.**
-
-## 설치
-
-1. Samsung Internet용 Adblock의 맞춤 필터 목록에 위 Raw URL을 등록합니다.
-2. 필터 목록을 활성화합니다.
-3. 필터 목록을 수동 갱신합니다.
-4. Samsung Internet의 ChatGPT 탭을 새로고침합니다.
-
-## 유지보수 원칙
-
-ChatGPT UI가 다시 변경되면 다음 순서로 대응합니다.
-
-1. 현재 정상 버전을 먼저 보존합니다.
-2. Samsung Internet에서 Adblock을 끄고 대화 본문 자체가 정상인지 확인합니다.
-3. 실제 모바일 DOM에서 문제가 생긴 요소의 selector를 확인합니다.
-4. 한 번에 많은 규칙을 바꾸지 않고 최소 변경만 적용합니다.
-5. 특히 conversation timeline과 composer가 숨겨지지 않는지 확인합니다.
-6. 실기기에서 정상 동작을 확인한 뒤에만 해당 버전을 안정 버전으로 기록합니다.
-
-보호 대상의 대표적인 현재 DOM selector:
-
-```text
-[data-scroll-root]
-section[data-testid^="conversation-turn"]
-[data-message-author-role]
-form[data-type="unified-composer"]
-#prompt-textarea
-button[data-testid="composer-plus-btn"]
-```
-
-위 요소 또는 그 상위 conversation wrapper를 잡는 cosmetic rule은 피합니다.
-
-## 트러블슈팅
-
-사이드바는 사라지는데 대화 본문도 사라진다면, 먼저 broad class selector가 conversation wrapper를 잡고 있는지 확인합니다.
-
-아무 UI도 전혀 숨겨지지 않는다면 selector를 먼저 바꾸기보다 Samsung Internet의 콘텐츠 차단 활성화, 맞춤 필터 활성화, 필터 갱신 상태를 확인합니다.
-
-정상 동작하던 버전으로 빠르게 비교할 필요가 있을 때는 GitHub commit history를 source of truth로 사용합니다.
-
-## 한계
-
-이 필터는 cosmetic filter이므로 화면 표시를 숨기는 보조 수단입니다. 실제 계정 권한 분리 기능을 대체하지 않습니다.
-
-이 프로젝트는 OpenAI 또는 ChatGPT의 공식 프로젝트가 아닙니다.
+| 날짜 | 버전 | 내용 |
+|---|---|---|
+| 2026-09-26 | `original-minus-body-killer` | 대화 본문 사라짐 장애 복구 (commit `677d4e0`) |
+| 2026-09-26 | `tag-only-buttons` | 태그 전용 규칙으로 의도한 UI 숨김 성공 (commit `43e12e81ee52463399bf51ea30e6c76021d91d2c`) |
