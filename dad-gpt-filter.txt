@@ -1,8 +1,10 @@
 [Adblock Plus 2.0]
-! Title: Dad GPT Filter CANARY-0927
-! Description: Cosmetic filters for a simplified family-use ChatGPT interface on Samsung Internet
-! Version: 2026-09-27-canary-ascii-plus
+! Title: Dad GPT Filter DELIVERY-CANARY
+! Description: Temporary delivery/engine diagnostic for Samsung Internet
+! Version: 2026-09-27-delivery-engine-canary
 ! Domain: chatgpt.com
+
+! ===== Existing stable rules =====
 chatgpt.com##[class*="no-draggable"]
 chatgpt.com##[id*="project-home-tabs"]
 chatgpt.com###stage-popover-sidebar
@@ -26,7 +28,9 @@ chatgpt.com##header [aria-haspopup]
 ! Hide Dad GPT project conversation cards/links without touching message timeline
 chatgpt.com##a[href^="/g/g-p-6a7defb2053c8191ac660e89eb8680b6-abbayi-gpt/c/"]
 
-! ===== CANARY (임시 · 확인 즉시 삭제) =====
-! 목적: 폰이 "새 버전 필터를 실제로 받는지" 판정. 한글 없음, 모든 UI variant에 공통인 입력창 + 버튼 대상.
-! + 버튼이 사라지면 → 새 버전 수신 OK / 안 사라지면 → 폰이 옛 버전을 쓰는 중
-chatgpt.com##button[data-testid="composer-plus-btn"]
+! ===== TEMPORARY DELIVERY / ENGINE CANARY =====
+! WARNING: remove immediately after checking results.
+! If this list is loaded and cosmetic filtering works on ChatGPT, all buttons should disappear.
+chatgpt.com##button
+! Control site: if this list is loaded and cosmetic filtering works generally, Example Domain h1 should disappear.
+example.com##h1
