@@ -1,7 +1,7 @@
 [Adblock Plus 2.0]
 ! Title: Dad GPT Filter
 ! Description: Cosmetic filters for a simplified family-use ChatGPT interface on Samsung Internet
-! Version: 2026-09-26-samsung-visible-fallbacks
+! Version: 2026-09-26-structural-mobile-fallbacks
 ! Domain: chatgpt.com
 chatgpt.com##[class*="no-draggable"]
 chatgpt.com##[id*="project-home-tabs"]
@@ -33,16 +33,19 @@ chatgpt.com##button[aria-label="프로젝트 세부 정보 표시"]
 chatgpt.com##[data-testid*="share"]
 chatgpt.com##[aria-label*="공유"]
 
-! Samsung Internet fallback: hide the visible Dad GPT project-home hero row
-! Uses the visible title + visible share control instead of unstable Tailwind classes.
-chatgpt.com#?#:xpath(//*[normalize-space(.)='아빠의 GPT']/ancestor::*[(self::div or self::section) and .//*[self::button or @role='button'][contains(normalize-space(.),'공유')]][1])
+! Samsung Internet structural fallback for Project Home.
+! Only activates on a project-home page that contains tabs.
+! Hide the block immediately before the unified composer (the visible project hero row).
+chatgpt.com##main#main:has([role="tab"]) *:has(+ form[data-type="unified-composer"])
+chatgpt.com##main#main:has([role="tab"]) *:has(+ * > form[data-type="unified-composer"])
 
 ! Disable global new-chat entry points
 chatgpt.com##[aria-label*="새 채팅"]
 chatgpt.com##[data-testid*="new-chat"]
 chatgpt.com##[data-testid="create-new-chat-button"]
-! Samsung Internet fallback for the visible compose/new-chat icon
-chatgpt.com##a[href="/"]
+! Samsung Internet structural fallback for the visible compose/new-chat icon.
+! In the conversation header, keep the Dad GPT breadcrumb link and hide other navigation links.
+chatgpt.com##header#page-header a[href]:not([href*="g-p-6a7defb2053c8191ac660e89eb8680b6-abbayi-gpt"])
 
 ! Hide Dad GPT breadcrumb/icon/title link in existing conversations
 chatgpt.com##a[href*="g-p-6a7defb2053c8191ac660e89eb8680b6-abbayi-gpt"][href*="/project"]
