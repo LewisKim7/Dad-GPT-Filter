@@ -1,7 +1,7 @@
 [Adblock Plus 2.0]
 ! Title: Dad GPT Filter
 ! Description: Cosmetic filters for a simplified family-use ChatGPT interface on Samsung Internet
-! Version: 2026-09-26-original-minus-body-killer
+! Version: 2026-09-26-stable-plus-exact-new-chat
 ! Domain: chatgpt.com
 chatgpt.com##[class*="no-draggable"]
 chatgpt.com##[id*="project-home-tabs"]
@@ -22,6 +22,10 @@ chatgpt.com##[aria-label*="history"]
 chatgpt.com##nav a[href^="/c/"]
 chatgpt.com##[role="dialog"] a[href^="/c/"]
 chatgpt.com##header [aria-haspopup]
+
+! Hide the exact existing-conversation new-chat control
+chatgpt.com###conversation-header-actions
+chatgpt.com##a[aria-label="새 채팅"][href="/"]
 
 ! Hide Dad GPT project conversation cards/links without touching message timeline
 chatgpt.com##a[href^="/g/g-p-6a7defb2053c8191ac660e89eb8680b6-abbayi-gpt/c/"]
