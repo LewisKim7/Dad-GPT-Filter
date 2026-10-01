@@ -1,0 +1,7 @@
+.env
+.env.*
+node_modules/
+bridge/worker-state.json
+bridge/.venv/
+.DS_Store
+*.log
