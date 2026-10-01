@@ -15,7 +15,13 @@
 
 ## 최소 변경
 
-- 없음. 모든 앱이 원본 그대로입니다.
+1단계에서는 원본 그대로 이전했습니다. 이후 2단계 준비로 Family GPT Web의 GitHub raw URL 의존성만 제거했습니다.
+
+- `public/worker.py` 추가: 기존 `bridge/worker.py`와 동일한 worker를 Vercel 정적 경로로 제공
+- macOS/Windows launcher: 기존 `raw.githubusercontent.com/LewisKim7/Family-GPT-Web/...` 대신 `${SITE_URL}/worker.py` 사용
+- `vercel.json`: `/worker.py -> /public/worker.py` rewrite 및 no-store 헤더 추가
+- 문서의 canonical code source를 `LewisKim7/family-gpt/apps/family-gpt-web`로 변경
+- 앱 로직·API·환경변수·도메인·Vercel Project 자체는 변경하지 않음
 
 ## 검증 결과 (2026-10-01)
 
@@ -36,6 +42,14 @@
 ChatGPT-Web-Coder 원본의 `main` 밖 브랜치 `improve/add-gitignore`(2026-09-30, `.gitignore` 추가 1커밋)를
 태그 `chatgpt-web-coder/branch/improve/add-gitignore`로 그대로 옮겼습니다(`git fetch --tags` 후 확인).
 원본 `main`의 트리 해시가 `apps/chatgpt-web-coder`(`1f968db…`) 트리 해시와 일치해 내용이 동일하며, 커밋 역사는 이미 subtree로 들어와 있습니다.
+
+## 2단계 준비 상태 (2026-10-01)
+
+- 기존 standalone GitHub raw URL 의존성: **제거 완료**
+- `bridge/worker.py`와 `public/worker.py`: 동일 내용으로 유지
+- 새 launcher는 production site의 `/worker.py`를 받도록 변경
+- Vercel Git 연결 자체: **아직 기존 Family-GPT-Web 저장소**
+- 따라서 기존 Family-GPT-Web 저장소는 Vercel Git source를 `family-gpt`로 전환하고 Production 확인하기 전에는 삭제하지 않음
 
 ## 다음 단계(배포 연결 전환)에서 확인할 것
 
