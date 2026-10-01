@@ -43,6 +43,15 @@ ChatGPT-Web-Coder 원본의 `main` 밖 브랜치 `improve/add-gitignore`(2026-09
 태그 `chatgpt-web-coder/branch/improve/add-gitignore`로 그대로 옮겼습니다(`git fetch --tags` 후 확인).
 원본 `main`의 트리 해시가 `apps/chatgpt-web-coder`(`1f968db…`) 트리 해시와 일치해 내용이 동일하며, 커밋 역사는 이미 subtree로 들어와 있습니다.
 
+## 원본 Family-GPT-Web full archive (2026-10-02)
+
+- GitHub Actions run: `36882420760` → success
+- Artifact: `family-gpt-web-full-git-bundle`
+- Artifact digest: `sha256:1388b131fe74dd328c1df171e7d6a9936c2e8b1297ec08ff8b2e68192566d009`
+- Google Drive 보존본: `1ajS6LYuxJqlQ4aeCoOlvG2gZf9TL4d4w` (`family-gpt-web-full-git-bundle.zip`, 63,447 bytes)
+- Drive readback 완료
+- 완료 후 원본 저장소의 임시 `one-time-repository-archive.yml` 제거
+
 ## 2단계 준비 상태 (2026-10-01)
 
 - 기존 standalone GitHub raw URL 의존성: **제거 완료**
