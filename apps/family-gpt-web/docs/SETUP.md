@@ -8,7 +8,7 @@ The owner machine only needs the private starter file issued separately. Both Ma
 2. create an isolated Python 3.11 environment;
 3. install the pinned ChatGPT-Web2API build;
 4. launch the dedicated Chrome profile used by ChatGPT-Web2API;
-5. download the latest `bridge/worker.py` from this repository;
+5. download the latest `worker.py` from the production Vercel site (`/worker.py`), so the launcher does not depend on a GitHub raw URL;
 6. start the outbound worker against the production Vercel site.
 
 ## Mac mini / macOS
