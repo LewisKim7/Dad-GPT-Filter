@@ -30,7 +30,8 @@ if (-not (Test-Path $Web2Api)) {
 }
 
 Write-Host "Updating Family GPT worker..."
-Invoke-WebRequest -UseBasicParsing "https://raw.githubusercontent.com/LewisKim7/Family-GPT-Web/main/bridge/worker.py" -OutFile $Worker
+$WorkerUrl = $SiteUrl.TrimEnd('/') + "/worker.py"
+Invoke-WebRequest -UseBasicParsing $WorkerUrl -OutFile $Worker
 
 $webCommand = "& '" + $Web2Api + "' start --host 127.0.0.1 --port 8080"
 Start-Process powershell.exe -ArgumentList "-NoExit", "-ExecutionPolicy", "Bypass", "-Command", $webCommand
