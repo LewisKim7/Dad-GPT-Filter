@@ -1,6 +1,6 @@
 # family-gpt
 
-가족용 GPT 및 브라우저 연결 관련 도구를 한 GitHub 저장소로 정리한 **repository hub**입니다. 각 앱은 서로 독립된 코드베이스·빌드 단위·서비스입니다. 운영(배포)의 기준은 아직 **기존 저장소**이고, 이 저장소는 코드를 한곳에서 관리·열람하기 위한 것입니다.
+가족용 GPT 및 브라우저 연결 관련 도구를 한 GitHub 저장소로 정리한 **repository hub**입니다. 각 앱은 서로 독립된 코드베이스·빌드 단위·서비스입니다. **코드 관리 기준은 이 저장소**로 전환했으며, Family GPT Web의 Vercel Git 연결만 아직 기존 `Family-GPT-Web` 저장소를 가리킵니다.
 
 ## 앱
 
@@ -9,7 +9,7 @@
 | Family GPT Web | [`apps/family-gpt-web`](apps/family-gpt-web) | 공개 사이트가 소유자 Mac mini의 로그인된 chatgpt.com 세션에 작업을 보내 답을 받는 가족용 GPT 웹(Vercel Functions) | [family-gpt-web.vercel.app](https://family-gpt-web.vercel.app) | [Family-GPT-Web](https://github.com/LewisKim7/Family-GPT-Web) | 히스토리 보존 |
 | ChatGPT Web Coder | [`apps/chatgpt-web-coder`](apps/chatgpt-web-coder) | ChatGPT 웹 채팅으로 개발하는 워크플로/스킬 템플릿(문서 저장소, 모델이 아님) | — | [ChatGPT-Web-Coder](https://github.com/LewisKim7/ChatGPT-Web-Coder) | 히스토리 보존 |
 
-운영 주소는 기존 저장소에 연결된 Vercel 프로젝트가 배포합니다. 이 저장소에 push해도 배포되지 않습니다.
+`family-gpt-web.vercel.app`의 기존 Vercel Project·도메인·환경변수는 그대로 유지합니다. 현재 Vercel Git 연결 전환 전이라 이 저장소 push만으로는 운영 배포되지 않습니다. 향후 같은 Vercel Project의 Git source를 `LewisKim7/family-gpt`, Root Directory를 `apps/family-gpt-web`로 바꾸는 것만 남아 있습니다.
 
 ## 관련 standalone 저장소
 
