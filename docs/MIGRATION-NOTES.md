@@ -31,6 +31,12 @@
   `apps/chatgpt-web-coder`에는 자체 `.gitignore`가 없어 이 안전망이 특히 유효합니다.
 - 점검 결과: 루트 `.github/workflows` 없음, 추적 중인 `.env`·비밀값 패턴·2MB 초과 파일·빌드 산출물 없음.
 
+## 원본 저장소 삭제 전 보존한 refs (2026-10-01)
+
+ChatGPT-Web-Coder 원본의 `main` 밖 브랜치 `improve/add-gitignore`(2026-09-30, `.gitignore` 추가 1커밋)를
+태그 `chatgpt-web-coder/branch/improve/add-gitignore`로 그대로 옮겼습니다(`git fetch --tags` 후 확인).
+원본 `main`의 트리 해시가 `apps/chatgpt-web-coder`(`1f968db…`) 트리 해시와 일치해 내용이 동일하며, 커밋 역사는 이미 subtree로 들어와 있습니다.
+
 ## 다음 단계(배포 연결 전환)에서 확인할 것
 
 - Dad-GPT-Filter를 옮기려면 구독하는 기기의 주소부터 바꿔야 합니다. 비공개 저장소는 raw 구독이 되지 않으므로, 옮기지 않고 그대로 두는 것이 기본입니다.
