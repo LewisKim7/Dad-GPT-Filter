@@ -1,3 +1,12 @@
 # 루트 공통 무시 규칙 (각 앱의 .gitignore는 그대로 유지)
 .DS_Store
 Thumbs.db
+desktop.ini
+
+# 비밀값 안전망: 환경 파일은 어느 앱에서도 커밋하지 않음 (예시 파일은 허용)
+.env
+.env.*
+!.env.example
+!.env.sample
+!.env.template
+!.env.*.example
