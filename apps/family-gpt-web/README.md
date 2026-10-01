@@ -7,7 +7,7 @@ Default mode is **GPT Web**: the public site sends a job to the owner's Mac mini
 ## Canonical production
 
 - Vercel: `https://family-gpt-web.vercel.app`
-- GitHub: `LewisKim7/Family-GPT-Web`
+- GitHub: `LewisKim7/family-gpt` → `apps/family-gpt-web`
 
 The previous `Family-GPT-API` / separate `family-gpt` Vercel project is retired. Its useful Codex research is preserved under [`docs/legacy-codex/`](docs/legacy-codex/).
 
@@ -32,7 +32,7 @@ There is only one public Family GPT deployment. Mode switching happens inside th
 
 ## GPT Web
 
-The Mac mini worker remains the primary path. It makes outbound HTTPS requests only, so no home-network inbound port is required in the current worker-queue design. See [`docs/SETUP.md`](docs/SETUP.md).
+The Mac mini worker remains the primary path. It makes outbound HTTPS requests only, so no home-network inbound port is required in the current worker-queue design. The launchers fetch the current worker from `https://family-gpt-web.vercel.app/worker.py`, not from a GitHub raw URL, so the runtime no longer depends on the former standalone repository. See [`docs/SETUP.md`](docs/SETUP.md).
 
 ## Codex
 
