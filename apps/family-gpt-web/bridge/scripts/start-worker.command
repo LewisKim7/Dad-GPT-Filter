@@ -52,9 +52,8 @@ if [ ! -x "$WEB2API" ]; then
 fi
 
 echo "[Family GPT] Updating worker..."
-curl -fsSL \
-  "https://raw.githubusercontent.com/LewisKim7/Family-GPT-Web/main/bridge/worker.py" \
-  -o "$WORKER"
+WORKER_URL="${SITE_URL%/}/worker.py"
+curl -fsSL "$WORKER_URL" -o "$WORKER"
 
 if [ -f "$WEB2API_PID" ] && kill -0 "$(cat "$WEB2API_PID")" 2>/dev/null; then
   echo "[Family GPT] ChatGPT-Web2API is already running."
