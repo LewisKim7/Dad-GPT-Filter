@@ -1,15 +1,15 @@
 # family-gpt
 
-가족용 GPT 및 브라우저 연결 관련 도구를 한 GitHub 저장소로 정리한 **repository hub**입니다. 각 앱은 서로 독립된 코드베이스·빌드 단위·서비스입니다. **코드 관리 기준은 이 저장소**로 전환했으며, Family GPT Web의 Vercel Git 연결만 아직 기존 `Family-GPT-Web` 저장소를 가리킵니다.
+가족용 GPT 및 브라우저 연결 관련 도구를 한 GitHub 저장소로 정리한 **repository hub**입니다. 각 앱은 서로 독립된 코드베이스·빌드 단위·서비스입니다. 2026-10-02부터 코드 관리와 운영(배포)의 기준은 **이 저장소**입니다. 기존 standalone 저장소는 삭제했으며, 전체 Git 아카이브는 [릴리스](https://github.com/LewisKim7/family-gpt/releases)에 있습니다.
 
 ## 앱
 
-| 앱 | 폴더 | 설명 | 운영 주소 | 기존 저장소 | 이전 방식 |
+| 앱 | 폴더 | 설명 | 운영 주소 | 기존 저장소 (삭제됨) | 이전 방식 |
 |---|---|---|---|---|---|
-| Family GPT Web | [`apps/family-gpt-web`](apps/family-gpt-web) | 공개 사이트가 소유자 Mac mini의 로그인된 chatgpt.com 세션에 작업을 보내 답을 받는 가족용 GPT 웹(Vercel Functions) | [family-gpt-web.vercel.app](https://family-gpt-web.vercel.app) | [Family-GPT-Web](https://github.com/LewisKim7/Family-GPT-Web) | 히스토리 보존 |
-| ChatGPT Web Coder | [`apps/chatgpt-web-coder`](apps/chatgpt-web-coder) | ChatGPT 웹 채팅으로 개발하는 워크플로/스킬 템플릿(문서 저장소, 모델이 아님) | — | [ChatGPT-Web-Coder](https://github.com/LewisKim7/ChatGPT-Web-Coder) | 히스토리 보존 |
+| Family GPT Web | [`apps/family-gpt-web`](apps/family-gpt-web) | 공개 사이트가 소유자 Mac mini의 로그인된 chatgpt.com 세션에 작업을 보내 답을 받는 가족용 GPT 웹(Vercel Functions) | [family-gpt-web.vercel.app](https://family-gpt-web.vercel.app) | Family-GPT-Web | 히스토리 보존 |
+| ChatGPT Web Coder | [`apps/chatgpt-web-coder`](apps/chatgpt-web-coder) | ChatGPT 웹 채팅으로 개발하는 워크플로/스킬 템플릿(문서 저장소, 모델이 아님) | — | ChatGPT-Web-Coder | 히스토리 보존 |
 
-`family-gpt-web.vercel.app`의 기존 Vercel Project·도메인·환경변수는 그대로 유지합니다. 현재 Vercel Git 연결 전환 전이라 이 저장소 push만으로는 운영 배포되지 않습니다. 향후 같은 Vercel Project의 Git source를 `LewisKim7/family-gpt`, Root Directory를 `apps/family-gpt-web`로 바꾸는 것만 남아 있습니다.
+`family-gpt-web.vercel.app`의 기존 Vercel Project·도메인·환경변수는 그대로이며, Git source는 `LewisKim7/family-gpt`, Root Directory는 `apps/family-gpt-web`입니다. `main`에 push하면 `apps/family-gpt-web`이 바뀐 경우에만 Production 배포됩니다(`vercel.json`의 `ignoreCommand`). 워커 런처는 `https://family-gpt-web.vercel.app/worker.py`에서 워커를 받습니다.
 
 ## 관련 standalone 저장소
 
@@ -28,7 +28,7 @@
 - 루트에는 workspace, 공통 의존성, 공통 패키지, 빌드 도구, `.github/workflows`가 없습니다.
 - 앱을 수정할 때는 해당 `apps/<앱>` 안에서만 바꾸고, 앱 사이에 공유 코드를 만들지 않습니다.
 - 비밀값(`.env`, 토큰, 키)은 커밋하지 않습니다. 루트 `.gitignore`가 `.env*`를 막습니다(예시 파일은 허용).
-- Vercel, 기존 저장소, GitHub Actions는 1단계에서 변경하지 않았습니다. 연결 전환은 별도 단계에서 앱 하나씩 진행합니다.
+- Vercel 전환과 기존 저장소 삭제는 2026-10-02에 완료했습니다. 상세는 [work-hub/docs/GITHUB-CONSOLIDATION-STATUS.md](https://github.com/LewisKim7/work-hub/blob/main/docs/GITHUB-CONSOLIDATION-STATUS.md)를 보세요.
 
 ## 전체 저장소 구조
 
