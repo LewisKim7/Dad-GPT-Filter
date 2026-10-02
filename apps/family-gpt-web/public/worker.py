@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import threading
 import time
 import urllib.error
 import urllib.request
@@ -11,6 +12,8 @@ from pathlib import Path
 STATE_FILE = Path(__file__).with_name("worker-state.json")
 WEB2API = "http://127.0.0.1:8080"
 TARGET_MODEL = "gpt-5.6-sol"
+HEARTBEAT_SECONDS = 10
+RESULT_ATTEMPTS = 3
 
 
 def load_state():
@@ -100,6 +103,46 @@ def run_job(job, state):
     return output, conversation_id
 
 
+def start_heartbeat(site, token, health, interval=HEARTBEAT_SECONDS):
+    """Keep the site's worker status fresh while a long job is generating."""
+    stop = threading.Event()
+    body = {"health": health, "busy": True}
+
+    def loop():
+        warned = False
+        while not stop.wait(interval):
+            try:
+                status, _ = request_json(f"{site}/api/worker?action=heartbeat", method="POST", body=body, token=token, timeout=10)
+                if not 200 <= status < 300 and not warned:
+                    print(f"Heartbeat HTTP {status}")
+                    warned = True
+            except Exception as exc:
+                print(f"Heartbeat error: {type(exc).__name__}: {exc}")
+
+    thread = threading.Thread(target=loop, name="family-gpt-heartbeat", daemon=True)
+    thread.start()
+    return stop, thread
+
+
+def post_result(site, token, result, attempts=RESULT_ATTEMPTS):
+    delay = 2
+    for attempt in range(1, attempts + 1):
+        try:
+            status, body = request_json(f"{site}/api/worker?action=result", method="POST", body=result, token=token, timeout=30)
+            if 200 <= status < 300:
+                return True
+            print(f"Result POST HTTP {status} (attempt {attempt}/{attempts}): {body}")
+            if status in (400, 401, 404):
+                return False
+        except Exception as exc:
+            print(f"Result POST error (attempt {attempt}/{attempts}): {type(exc).__name__}: {exc}")
+        if attempt < attempts:
+            time.sleep(delay)
+            delay *= 2
+    print(f"Giving up on result for {result.get('id')}")
+    return False
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--site", default="https://family-gpt-web.vercel.app")
@@ -112,8 +155,8 @@ def main():
     print(f"Family GPT worker connected to {site}")
 
     while True:
-        health = local_health()
         try:
+            health = local_health()
             status, job = request_json(f"{site}/api/worker?action=pull", method="POST", body={"health": health}, token=token, timeout=15)
             if status == 401:
                 raise SystemExit("Worker token rejected. Download a newly issued starter from ChatGPT.")
@@ -125,15 +168,22 @@ def main():
                 time.sleep(5)
                 continue
             print(f"Processing {job['id']} with {job.get('model', TARGET_MODEL)}")
+            stop_heartbeat, heartbeat = start_heartbeat(site, token, health)
             try:
                 output, conversation_id = run_job(job, state)
                 result = {"id": job["id"], "ok": True, "output": output, "conversationId": conversation_id}
             except Exception as exc:
                 result = {"id": job["id"], "ok": False, "error": str(exc)}
-            request_json(f"{site}/api/worker?action=result", method="POST", body=result, token=token, timeout=30)
+            finally:
+                stop_heartbeat.set()
+                heartbeat.join(timeout=15)
+            post_result(site, token, result)
             time.sleep(0.25)
         except (urllib.error.URLError, TimeoutError, OSError) as exc:
             print(f"Network error: {exc}")
+            time.sleep(5)
+        except Exception as exc:
+            print(f"Worker loop error: {type(exc).__name__}: {exc}")
             time.sleep(5)
 
 

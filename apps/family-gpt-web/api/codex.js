@@ -1,4 +1,6 @@
+import { requireFamilyAccess } from "../lib/access.js";
 import { runCodexChat } from "../lib/codex.js";
+import { DAILY_LIMIT_ERROR, consumeDailyQuota } from "../lib/runtime.js";
 
 const WINDOW_MS = 60_000;
 const attempts = new Map();
@@ -12,7 +14,9 @@ function allow(req) {
 
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
+  if (!requireFamilyAccess(req, res)) return;
   if (!allow(req)) return res.status(429).json({ error: "요청이 너무 많습니다. 잠시 후 다시 시도하세요." });
+  if (!(await consumeDailyQuota())) return res.status(429).json({ error: DAILY_LIMIT_ERROR });
   try {
     const result = await runCodexChat({ messages: req.body?.messages, model: req.body?.model || "auto" });
     return res.status(200).json(result);

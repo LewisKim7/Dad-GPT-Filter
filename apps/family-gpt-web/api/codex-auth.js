@@ -4,7 +4,7 @@ import { getCodexStatus, pollCodexDeviceLogin, startCodexDeviceLogin } from "../
 export default async function handler(req, res) {
   if (req.method === "GET") {
     const status = await getCodexStatus();
-    return res.status(200).json(status);
+    return res.status(200).json({ connected: status.connected === true });
   }
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
   if (!workerAuthorized(req)) return res.status(401).json({ error: "Owner authorization required" });

@@ -15,9 +15,11 @@ mkdir -p "$INSTALL_DIR"
 
 if [ -z "$WORKER_TOKEN" ]; then
   printf "Family GPT worker token: "
+  trap 'stty echo' EXIT
   stty -echo
-  read -r WORKER_TOKEN
+  read -r WORKER_TOKEN || true
   stty echo
+  trap - EXIT
   printf "\n"
 fi
 if [ -z "$WORKER_TOKEN" ]; then
@@ -59,7 +61,7 @@ if [ -f "$WEB2API_PID" ] && kill -0 "$(cat "$WEB2API_PID")" 2>/dev/null; then
   echo "[Family GPT] ChatGPT-Web2API is already running."
 else
   echo "[Family GPT] Starting ChatGPT-Web2API..."
-  nohup "$WEB2API" start --port 8080 --cdp-port 9222 >>"$WEB2API_LOG" 2>&1 &
+  nohup "$WEB2API" start --host 127.0.0.1 --port 8080 --cdp-port 9222 >>"$WEB2API_LOG" 2>&1 &
   echo $! > "$WEB2API_PID"
 fi
 

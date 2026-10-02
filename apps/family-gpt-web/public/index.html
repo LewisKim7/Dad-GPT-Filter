@@ -33,6 +33,15 @@
     </main>
     <button id="backdrop" class="backdrop" aria-label="메뉴 닫기"></button>
   </div>
+  <div id="accessGate" class="access-gate" role="dialog" aria-modal="true" aria-labelledby="accessTitle" hidden>
+    <form id="accessForm" class="access-card">
+      <label id="accessTitle" for="accessCode">가족 접속 코드</label>
+      <p class="access-help">가족에게 받은 접속 코드를 입력하세요.</p>
+      <input id="accessCode" type="password" autocomplete="current-password" required/>
+      <p id="accessError" class="access-error" role="alert" aria-live="polite"></p>
+      <button id="accessSubmit" type="submit">확인</button>
+    </form>
+  </div>
   <script src="/app.js" type="module"></script>
 </body>
 </html>

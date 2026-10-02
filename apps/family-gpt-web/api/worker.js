@@ -5,14 +5,23 @@ export default async function handler(req, res) {
   if (!workerAuthorized(req)) return res.status(401).json({ error: "Unauthorized worker" });
   const action = String(req.query?.action || req.body?.action || "pull");
 
+  const health = req.body?.health && typeof req.body.health === "object" ? req.body.health : {};
+  const workerStatus = () => setWorkerStatus({
+    ready: health.ready === true,
+    engineStatus: String(health.engineStatus || "offline"),
+    modelAvailable: health.modelAvailable === true,
+    resolvedModel: health.resolvedModel ? String(health.resolvedModel) : null,
+    busy: req.body?.busy === true,
+  });
+
+  // Sent by the worker every ~10s while a job is generating, so the site does not show it as offline.
+  if (action === "heartbeat") {
+    await workerStatus();
+    return res.status(204).end();
+  }
+
   if (action === "pull") {
-    const health = req.body?.health && typeof req.body.health === "object" ? req.body.health : {};
-    await setWorkerStatus({
-      ready: health.ready === true,
-      engineStatus: String(health.engineStatus || "offline"),
-      modelAvailable: health.modelAvailable === true,
-      resolvedModel: health.resolvedModel ? String(health.resolvedModel) : null,
-    });
+    await workerStatus();
     if (health.ready !== true) return res.status(204).end();
     const job = await leaseNextJob();
     if (!job) return res.status(204).end();

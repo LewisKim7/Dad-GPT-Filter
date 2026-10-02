@@ -88,7 +88,7 @@ export async function getCodexSession() {
 
 export async function getCodexStatus() {
   const session = await getCodexSession();
-  return { connected: Boolean(session), accountId: session?.accountId || null };
+  return { connected: Boolean(session) };
 }
 
 export async function startCodexDeviceLogin() {
