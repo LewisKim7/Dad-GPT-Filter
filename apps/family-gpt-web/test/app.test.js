@@ -69,3 +69,12 @@ test("mode buttons expose aria-pressed and Escape closes the mobile sidebar", as
   assert.equal(byId("sidebar").classList.contains("open"), false);
   assert.equal(byId("menuToggle").getAttribute("aria-expanded"), "false");
 });
+
+test("Enter that confirms a Korean IME composition does not send", async () => {
+  const before = codexBodies.length;
+  byId("prompt").value = "안녕";
+  await byId("prompt").dispatch("keydown", { key: "Enter", isComposing: true });
+  assert.equal(codexBodies.length, before);
+  await byId("prompt").dispatch("keydown", { key: "Enter", isComposing: false });
+  assert.equal(codexBodies.length, before + 1);
+});

@@ -132,7 +132,7 @@ $("composer").addEventListener("submit", async (event) => {
   finally { sending = false; if (mode === "web" || codexConnected) $("send").disabled = false; $("prompt").focus(); }
 });
 $("newChat").addEventListener("click", () => { histories[mode] = []; if (mode === "web") { webThreadId = crypto.randomUUID(); localStorage.setItem("familyGptPublicThreadId", webThreadId); } renderMessages(); });
-$("prompt").addEventListener("keydown", (event) => { if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); $("composer").requestSubmit(); } });
+$("prompt").addEventListener("keydown", (event) => { if (event.key === "Enter" && !event.shiftKey && !event.isComposing && event.keyCode !== 229) { event.preventDefault(); $("composer").requestSubmit(); } });
 $("accessForm").addEventListener("submit", submitAccessCode);
 if (!localStorage.getItem(CODE_KEY)) showAccessGate();
 renderMessages(); refreshHealth().catch(() => {}); setInterval(() => refreshHealth().catch(() => {}), 15000);
