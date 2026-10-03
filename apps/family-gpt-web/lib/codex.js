@@ -13,6 +13,8 @@ const AUTH_BASE_URL = "https://auth.openai.com";
 const SESSION_KEY = "session";
 const SESSION_TTL_SECONDS = 30 * 24 * 60 * 60;
 const DEVICE_TTL_SECONDS = 15 * 60;
+// Longer than the 60s function limit, so a crashed exchange does not block polling forever.
+const EXCHANGE_LOCK_MS = 90_000;
 const cache = getCache({ namespace: "family-gpt-codex-v1" });
 
 const MODEL_CONFIGS = {
@@ -117,8 +119,14 @@ export async function startCodexDeviceLogin() {
 
 export async function pollCodexDeviceLogin(pairingId) {
   if (!/^[a-f0-9-]{36}$/i.test(String(pairingId || ""))) throw new Error("Invalid pairing id.");
-  const pending = await cache.get(`device:${pairingId}`);
-  if (!pending?.deviceAuthId || !pending?.userCode) return { status: "expired" };
+  const deviceKey = `device:${pairingId}`;
+  const pending = await cache.get(deviceKey);
+  if (!pending?.deviceAuthId || !pending?.userCode) {
+    // An earlier poll may already have finished the exchange and removed the pairing.
+    return (await getCodexSession()) ? { status: "connected" } : { status: "expired" };
+  }
+  // The authorization code is single-use: while another poll is exchanging it, just wait.
+  if (pending.claim && Date.now() - Number(pending.claimedAt || 0) < EXCHANGE_LOCK_MS) return { status: "pending" };
   const response = await fetch(`${AUTH_BASE_URL}/api/accounts/deviceauth/token`, {
     method: "POST",
     headers: { "content-type": "application/json" },
@@ -128,22 +136,30 @@ export async function pollCodexDeviceLogin(pairingId) {
   if (!response.ok) throw new Error(`Device authorization failed (${response.status}).`);
   const payload = await response.json();
   if (!payload?.authorization_code || !payload?.code_verifier) throw new Error("OpenAI returned an incomplete authorization response.");
-  const tokens = await exchangeOpenAIOAuthCode({
-    code: payload.authorization_code,
-    codeVerifier: payload.code_verifier,
-    redirectUri: `${AUTH_BASE_URL}/deviceauth/callback`,
-    clientId: DEFAULT_OPENAI_OAUTH_CLIENT_ID,
-  });
-  const accountId = tokens.accountId || deriveAccountId(tokens.idToken) || deriveAccountId(tokens.accessToken);
-  if (!accountId || !tokens.refreshToken) throw new Error("Could not establish a persistent ChatGPT session.");
-  const session = await refreshSession({
-    accessToken: tokens.accessToken,
-    refreshToken: tokens.refreshToken,
-    accountId,
-    expiresAt: Date.now() + Math.max(60, Number(tokens.expiresIn || 3600)) * 1000,
-  });
-  await cache.delete(`device:${pairingId}`);
-  return { status: "connected", accountId: session.accountId };
+  // Runtime Cache has no compare-and-set; claim, then re-read so only the last writer exchanges.
+  const claim = crypto.randomUUID();
+  await cache.set(deviceKey, { ...pending, claim, claimedAt: Date.now() }, { ttl: DEVICE_TTL_SECONDS, name: "Family GPT Codex device login" });
+  if ((await cache.get(deviceKey))?.claim !== claim) return { status: "pending" };
+  try {
+    const tokens = await exchangeOpenAIOAuthCode({
+      code: payload.authorization_code,
+      codeVerifier: payload.code_verifier,
+      redirectUri: `${AUTH_BASE_URL}/deviceauth/callback`,
+      clientId: DEFAULT_OPENAI_OAUTH_CLIENT_ID,
+    });
+    const accountId = tokens.accountId || deriveAccountId(tokens.idToken) || deriveAccountId(tokens.accessToken);
+    if (!accountId || !tokens.refreshToken) throw new Error("Could not establish a persistent ChatGPT session.");
+    const session = await refreshSession({
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
+      accountId,
+      expiresAt: Date.now() + Math.max(60, Number(tokens.expiresIn || 3600)) * 1000,
+    });
+    return { status: "connected", accountId: session.accountId };
+  } finally {
+    // The code is spent either way; a retry has to start a new device login.
+    await cache.delete(deviceKey);
+  }
 }
 
 export async function runCodexChat({ messages: rawMessages, model: requestedModel }) {
