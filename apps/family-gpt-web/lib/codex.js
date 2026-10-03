@@ -51,6 +51,12 @@ function routeModel(requestedModel, messages) {
   return { key: "terra", reason: "balanced-default" };
 }
 
+// @openai-oauth/ai-sdk wraps @ai-sdk/openai's Responses model (provider options key "openai").
+// generateText has no top-level reasoning option, so the effort must go through providerOptions.
+export function reasoningProviderOptions(config) {
+  return { openai: { reasoningEffort: config.reasoning } };
+}
+
 async function readSession() {
   const value = await cache.get(SESSION_KEY);
   return value && typeof value === "object" ? value : null;
@@ -150,7 +156,7 @@ export async function runCodexChat({ messages: rawMessages, model: requestedMode
   const oauthProvider = createOpenAIOAuth({ kind: "openai-oauth", getSession: async () => session });
   const result = await generateText({
     model: oauthProvider(config.id),
-    reasoning: config.reasoning,
+    providerOptions: reasoningProviderOptions(config),
     system: [
       "You are Family GPT in optional Codex mode.",
       "Reply in the user's language and answer directly.",
