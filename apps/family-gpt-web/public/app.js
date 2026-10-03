@@ -116,9 +116,18 @@ $("composer").addEventListener("submit", async (event) => {
   event.preventDefault(); if (sending) return; const prompt = $("prompt").value.trim(); if (!prompt) return;
   if (mode === "codex" && !codexConnected) return;
   if (!localStorage.getItem(CODE_KEY)) { showAccessGate(); return; }
-  $("prompt").value = ""; addMessage("user", prompt); const pending = addMessage("assistant", "전송 중…", "pending", false); $("send").disabled = true; sending = true;
-  try { if (mode === "web") await submitWeb(prompt, pending); else await submitCodex(pending); }
-  catch (error) { pending.classList.remove("pending"); pending.textContent = `오류: ${error.message}`; }
+  const sentMode = mode;
+  $("prompt").value = ""; addMessage("user", prompt); const sentEntry = histories[sentMode].at(-1); const pending = addMessage("assistant", "전송 중…", "pending", false); $("send").disabled = true; sending = true;
+  try { if (sentMode === "web") await submitWeb(prompt, pending); else await submitCodex(pending); }
+  catch (error) {
+    pending.classList.remove("pending"); pending.textContent = `오류: ${error.message}`;
+    // Codex sends the whole history, so an unanswered user turn would be resent as two user turns in a row.
+    // Drop it and put the text back in the composer for a retry.
+    if (sentMode === "codex") {
+      const index = histories.codex.lastIndexOf(sentEntry); if (index >= 0) histories.codex.splice(index, 1);
+      if (mode === "codex" && !$("prompt").value) $("prompt").value = prompt;
+    }
+  }
   finally { sending = false; if (mode === "web" || codexConnected) $("send").disabled = false; $("prompt").focus(); }
 });
 $("newChat").addEventListener("click", () => { histories[mode] = []; if (mode === "web") { webThreadId = crypto.randomUUID(); localStorage.setItem("familyGptPublicThreadId", webThreadId); } renderMessages(); });
