@@ -14,6 +14,7 @@ WEB2API = "http://127.0.0.1:8080"
 TARGET_MODEL = "gpt-5.6-sol"
 HEARTBEAT_SECONDS = 10
 RESULT_ATTEMPTS = 3
+MAX_THREADS = 200
 
 
 def load_state():
@@ -27,6 +28,17 @@ def save_state(state):
     tmp = STATE_FILE.with_suffix(".tmp")
     tmp.write_text(json.dumps(state, ensure_ascii=False, indent=2), encoding="utf-8")
     tmp.replace(STATE_FILE)
+
+
+def prune_threads(threads, limit=MAX_THREADS):
+    """Keep only the most recently used threads so worker-state.json does not grow forever."""
+    if len(threads) <= limit:
+        return threads
+    def updated_at(item):
+        value = item[1].get("updatedAt", 0) if isinstance(item[1], dict) else 0
+        return value if isinstance(value, (int, float)) else 0
+    recent = sorted(threads.items(), key=updated_at, reverse=True)[:limit]
+    return dict(recent)
 
 
 def request_json(url, method="GET", body=None, token=None, timeout=30):
@@ -99,6 +111,7 @@ def run_job(job, state):
     conversation_id = str((body or {}).get("conversation_id") or thread.get("conversationId") or "")
     if conversation_id:
         state["threads"][thread_id] = {"conversationId": conversation_id, "updatedAt": int(time.time() * 1000)}
+        state["threads"] = prune_threads(state["threads"])
         save_state(state)
     return output, conversation_id
 
