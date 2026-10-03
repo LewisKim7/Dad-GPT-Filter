@@ -1,15 +1,12 @@
 import crypto from "node:crypto";
-import { requireFamilyAccess } from "../lib/access.js";
+import { clientKey, createWindowCounter, requireFamilyAccess } from "../lib/access.js";
 import { DAILY_LIMIT_ERROR, configuredModel, consumeDailyQuota, enqueueJob, workerOnline } from "../lib/runtime.js";
 
-const WINDOW_MS = 60_000;
-const attempts = new Map();
-function clientKey(req) { return String(req.headers["x-forwarded-for"] || req.headers["x-real-ip"] || "unknown").split(",")[0].trim(); }
+const attempts = createWindowCounter({ windowMs: 60_000 });
 function allow(req) {
-  const now = Date.now(); const key = clientKey(req); const current = attempts.get(key);
-  if (!current || now - current.startedAt >= WINDOW_MS) { attempts.set(key, { count: 1, startedAt: now }); return true; }
-  if (current.count >= 6) return false;
-  current.count += 1; return true;
+  const now = Date.now(); const key = clientKey(req);
+  if (attempts.count(key, now) >= 6) return false;
+  attempts.increment(key, now); return true;
 }
 
 export default async function handler(req, res) {

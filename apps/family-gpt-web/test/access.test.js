@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { beforeEach, test } from "node:test";
-import { FAMILY_CODE_ENV, FAMILY_CODE_HEADER, checkFamilyAccess, resetAccessFailuresForTests, safeEqualHex, sha256Hex } from "../lib/access.js";
+import { FAMILY_CODE_ENV, FAMILY_CODE_HEADER, checkFamilyAccess, createWindowCounter, resetAccessFailuresForTests, safeEqualHex, sha256Hex } from "../lib/access.js";
 
 const CODE = "family-test-code";
 const env = { [FAMILY_CODE_ENV]: sha256Hex(CODE) };
@@ -37,4 +37,30 @@ test("repeated failures from one client are throttled", () => {
 test("safeEqualHex handles length mismatch", () => {
   assert.equal(safeEqualHex("ab", "abc"), false);
   assert.equal(safeEqualHex("abc", "abc"), true);
+});
+
+test("window counter counts per key and resets after the window", () => {
+  const counter = createWindowCounter({ windowMs: 1000 });
+  assert.equal(counter.increment("a", 0), 1);
+  assert.equal(counter.increment("a", 500), 2);
+  assert.equal(counter.count("a", 999), 2);
+  assert.equal(counter.count("a", 1000), 0);
+  assert.equal(counter.increment("a", 1000), 1);
+});
+
+test("window counter sweeps expired clients so the map stays bounded", () => {
+  const counter = createWindowCounter({ windowMs: 1000, maxEntries: 50 });
+  for (let i = 0; i < 40; i += 1) counter.increment(`old-${i}`, 0);
+  assert.equal(counter.size, 40);
+  counter.increment("new", 1500);
+  assert.equal(counter.size, 1);
+  for (let i = 0; i < 200; i += 1) counter.increment(`live-${i}`, 1600);
+  assert.ok(counter.size <= 50, `size ${counter.size} exceeds cap`);
+  assert.equal(counter.count("live-199", 1600), 1);
+});
+
+test("access failures expire after the window", () => {
+  for (let i = 0; i < 30; i += 1) checkFamilyAccess(req("wrong", `198.18.0.${i}`), env, 0);
+  assert.equal(checkFamilyAccess(req("wrong", "198.18.1.1"), env, 11 * 60_000).status, 401);
+  for (let i = 0; i < 30; i += 1) assert.equal(checkFamilyAccess(req(CODE, `198.18.0.${i}`), env, 11 * 60_000).ok, true);
 });

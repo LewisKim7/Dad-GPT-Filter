@@ -26,3 +26,9 @@ test("disconnected Codex session returns 503", async () => {
   const res = await call({ messages: [{ role: "user", content: "hello" }] }, "198.51.100.4");
   assert.equal(res.statusCode, 503);
 });
+
+test("per-client rate limit allows 6 requests per minute", async () => {
+  for (let i = 0; i < 6; i += 1) assert.equal((await call({}, "198.51.100.9")).statusCode, 400);
+  assert.equal((await call({}, "198.51.100.9")).statusCode, 429);
+  assert.equal((await call({}, "198.51.100.10")).statusCode, 400);
+});
