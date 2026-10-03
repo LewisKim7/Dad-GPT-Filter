@@ -27,7 +27,12 @@ const store = new Map([["familyGptAccessCode", "family-test-code"]]);
 const codexBodies = [];
 let codexReply = { status: 500, body: { error: "boom" } };
 
-globalThis.document = { getElementById: byId, createElement: () => fakeElement(), querySelectorAll: () => modeButtons, addEventListener() {} };
+const documentListeners = {};
+globalThis.document = {
+  getElementById: byId, createElement: () => fakeElement(), querySelectorAll: () => modeButtons,
+  querySelector: () => modeButtons.find((button) => button.classList.contains("active")) || null,
+  addEventListener(type, fn) { (documentListeners[type] ||= []).push(fn); },
+};
 globalThis.localStorage = { getItem: (k) => store.get(k) ?? null, setItem: (k, v) => store.set(k, String(v)), removeItem: (k) => store.delete(k) };
 globalThis.setInterval = () => 0;
 globalThis.fetch = async (url, init = {}) => {
@@ -52,4 +57,15 @@ test("a failed Codex request does not leave a dangling user turn in the history"
   byId("prompt").value = "second question";
   await byId("composer").dispatch("submit");
   assert.deepEqual(codexBodies.at(-1).messages, [{ role: "user", content: "second question" }]);
+});
+
+test("mode buttons expose aria-pressed and Escape closes the mobile sidebar", async () => {
+  assert.equal(modeButtons[1].getAttribute("aria-pressed"), "true");
+  assert.equal(modeButtons[0].getAttribute("aria-pressed"), "false");
+  await byId("menuToggle").dispatch("click");
+  assert.equal(byId("sidebar").classList.contains("open"), true);
+  assert.equal(byId("menuToggle").getAttribute("aria-expanded"), "true");
+  for (const fn of documentListeners.keydown || []) fn({ key: "Escape" });
+  assert.equal(byId("sidebar").classList.contains("open"), false);
+  assert.equal(byId("menuToggle").getAttribute("aria-expanded"), "false");
 });

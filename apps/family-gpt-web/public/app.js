@@ -99,19 +99,20 @@ async function submitCodex(pending) {
 function setMode(next) {
   if (!["web", "codex"].includes(next) || next === mode) return;
   mode = next;
-  document.querySelectorAll(".mode-button").forEach((button) => button.classList.toggle("active", button.dataset.mode === mode));
+  document.querySelectorAll(".mode-button").forEach((button) => { const active = button.dataset.mode === mode; button.classList.toggle("active", active); button.setAttribute("aria-pressed", String(active)); });
   $("modeTitle").textContent = mode === "web" ? "GPT Web" : "Codex";
   $("modelPill").textContent = mode === "web" ? "GPT-5.6 Sol" : "Codex · Auto";
-  $("prompt").placeholder = mode === "web" ? "메시지 입력" : "Codex에 메시지 입력";
+  $("prompt").placeholder = mode === "web" ? "메시지 입력" : "Codex에 메시지 입력"; $("prompt").setAttribute("aria-label", $("prompt").placeholder);
   renderMessages();
   closeSidebar();
   refreshHealth().catch(() => {});
 }
-function openSidebar() { $("sidebar").classList.add("open"); $("backdrop").classList.add("show"); }
-function closeSidebar() { $("sidebar").classList.remove("open"); $("backdrop").classList.remove("show"); }
+function openSidebar() { $("sidebar").classList.add("open"); $("backdrop").classList.add("show"); $("menuToggle").setAttribute("aria-expanded", "true"); document.querySelector(".mode-button.active")?.focus(); }
+function closeSidebar() { const wasOpen = $("sidebar").classList.contains("open"); $("sidebar").classList.remove("open"); $("backdrop").classList.remove("show"); $("menuToggle").setAttribute("aria-expanded", "false"); return wasOpen; }
 
 document.querySelectorAll(".mode-button").forEach((button) => button.addEventListener("click", () => setMode(button.dataset.mode)));
 $("menuToggle").addEventListener("click", openSidebar); $("backdrop").addEventListener("click", closeSidebar);
+document.addEventListener("keydown", (event) => { if (event.key === "Escape" && closeSidebar()) $("menuToggle").focus(); });
 $("composer").addEventListener("submit", async (event) => {
   event.preventDefault(); if (sending) return; const prompt = $("prompt").value.trim(); if (!prompt) return;
   if (mode === "codex" && !codexConnected) return;

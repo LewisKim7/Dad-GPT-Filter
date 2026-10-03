@@ -9,11 +9,11 @@
 </head>
 <body>
   <div class="app-shell">
-    <aside id="sidebar" class="sidebar">
+    <aside id="sidebar" class="sidebar" aria-label="모드 선택">
       <div class="brand">Family GPT</div>
       <div class="mode-label">MODE</div>
-      <button class="mode-button active" data-mode="web"><span>GPT Web</span><small>기본 · 실제 ChatGPT</small></button>
-      <button class="mode-button" data-mode="codex"><span>Codex</span><small>보조 · 실험</small></button>
+      <button type="button" class="mode-button active" data-mode="web" aria-pressed="true"><span>GPT Web</span><small>기본 · 실제 ChatGPT</small></button>
+      <button type="button" class="mode-button" data-mode="codex" aria-pressed="false"><span>Codex</span><small>보조 · 실험</small></button>
       <div class="sidebar-spacer"></div>
       <div id="sidebarStatus" class="sidebar-status">상태 확인 중…</div>
     </aside>
@@ -22,16 +22,16 @@
       <section class="chat">
         <header>
           <div class="title-group">
-            <button id="menuToggle" class="menu-toggle" aria-label="메뉴">☰</button>
-            <div><strong id="modeTitle">GPT Web</strong><span id="status" class="status">연결 확인 중</span></div>
+            <button id="menuToggle" type="button" class="menu-toggle" aria-label="메뉴" aria-controls="sidebar" aria-expanded="false">☰</button>
+            <div><strong id="modeTitle">GPT Web</strong><span id="status" class="status" role="status">연결 확인 중</span></div>
           </div>
-          <div class="header-actions"><span id="modelPill" class="model-pill">GPT-5.6 Sol</span><button id="newChat" class="secondary">새 대화</button></div>
+          <div class="header-actions"><span id="modelPill" class="model-pill">GPT-5.6 Sol</span><button id="newChat" type="button" class="secondary">새 대화</button></div>
         </header>
-        <div id="messages" class="messages"><div class="empty" id="empty">무엇이든 물어보세요</div></div>
-        <form id="composer" class="composer"><textarea id="prompt" rows="2" placeholder="메시지 입력"></textarea><button id="send" type="submit">보내기</button></form>
+        <div id="messages" class="messages" role="log" aria-label="대화"><div class="empty" id="empty">무엇이든 물어보세요</div></div>
+        <form id="composer" class="composer"><textarea id="prompt" rows="2" placeholder="메시지 입력" aria-label="메시지"></textarea><button id="send" type="submit">보내기</button></form>
       </section>
     </main>
-    <button id="backdrop" class="backdrop" aria-label="메뉴 닫기"></button>
+    <button id="backdrop" type="button" class="backdrop" aria-label="메뉴 닫기" tabindex="-1"></button>
   </div>
   <div id="accessGate" class="access-gate" role="dialog" aria-modal="true" aria-labelledby="accessTitle" hidden>
     <form id="accessForm" class="access-card">
