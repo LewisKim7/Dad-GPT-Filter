@@ -11,7 +11,7 @@
   "dependencies": {
     "@openai-oauth/ai-sdk": "2.0.0",
     "@openai-oauth/core": "2.0.0",
-    "@vercel/functions": "3.9.5",
+    "@vercel/functions": "3.9.11",
     "ai": "6.0.116"
   }
 }
