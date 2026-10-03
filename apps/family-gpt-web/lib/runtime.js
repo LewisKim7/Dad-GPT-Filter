@@ -97,10 +97,10 @@ export async function leaseNextJob() {
     const job = await getJob(id);
     if (!job) { changed = true; continue; }
     if (["completed", "failed", "uncertain"].includes(job.status)) { changed = true; continue; }
-    if (job.status === "queued") {
-      const stale = staleJobPatch(job);
-      if (stale) { await setJob(id, { ...job, ...stale, updatedAt: Date.now() }); changed = true; continue; }
-    }
+    // Expire stale queued jobs and generating jobs whose worker never reported back,
+    // so they do not occupy queue slots until the queue key itself expires.
+    const stale = staleJobPatch(job);
+    if (stale) { await setJob(id, { ...job, ...stale, updatedAt: Date.now() }); changed = true; continue; }
     if (!leased && job.status === "queued") {
       leased = { ...job, status: "generating", startedAt: Date.now(), updatedAt: Date.now() };
       await setJob(id, leased);
