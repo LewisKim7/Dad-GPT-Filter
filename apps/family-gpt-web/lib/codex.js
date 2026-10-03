@@ -24,7 +24,7 @@ const MODEL_CONFIGS = {
 const LIGHT_TASK = /(번역|translate|맞춤법|오타|교정|한\s*줄|짧게|간단히|요약|제목.{0,8}추천|뜻.{0,8}(뭐|알려)|계산해)/i;
 const DEEP_TASK = /(깊게|심층|철저|최대한.{0,12}(고민|분석|검토)|복잡|고난도|전략적|단계별|시나리오|모델링|디버그|디버깅|코드\s*리뷰|아키텍처|root\s*cause|trade-?off|증명|최적화)/i;
 
-function normalizeMessages(input) {
+export function normalizeMessages(input) {
   if (!Array.isArray(input)) return [];
   const selected = [];
   let total = 0;
