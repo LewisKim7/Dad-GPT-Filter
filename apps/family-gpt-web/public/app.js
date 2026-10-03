@@ -2,6 +2,7 @@ const $ = (id) => document.getElementById(id);
 let mode = "web";
 let webThreadId = localStorage.getItem("familyGptPublicThreadId") || crypto.randomUUID();
 let codexConnected = false;
+let sending = false; // one request at a time; Enter calls requestSubmit() even when the button is disabled
 const histories = { web: [], codex: [] };
 
 function escapeStateMessage() {
@@ -55,11 +56,11 @@ async function refreshHealth() {
   if (mode === "web") {
     $("status").textContent = webGood ? `● ${web.resolvedModel || "GPT-5.6 Sol"} 연결됨` : "○ ChatGPT worker 오프라인";
     $("status").dataset.state = webGood ? "online" : "offline";
-    $("send").disabled = false;
+    $("send").disabled = sending;
   } else {
     $("status").textContent = codexConnected ? "● Codex 연결됨" : "○ Codex 미연결";
     $("status").dataset.state = codexConnected ? "online" : "offline";
-    $("send").disabled = !codexConnected;
+    $("send").disabled = sending || !codexConnected;
   }
   $("sidebarStatus").textContent = `GPT Web ${webGood ? "온라인" : "오프라인"} · Codex ${codexConnected ? "연결됨" : "미연결"}`;
   if (!histories[mode].length) renderMessages();
@@ -112,13 +113,13 @@ function closeSidebar() { $("sidebar").classList.remove("open"); $("backdrop").c
 document.querySelectorAll(".mode-button").forEach((button) => button.addEventListener("click", () => setMode(button.dataset.mode)));
 $("menuToggle").addEventListener("click", openSidebar); $("backdrop").addEventListener("click", closeSidebar);
 $("composer").addEventListener("submit", async (event) => {
-  event.preventDefault(); const prompt = $("prompt").value.trim(); if (!prompt) return;
+  event.preventDefault(); if (sending) return; const prompt = $("prompt").value.trim(); if (!prompt) return;
   if (mode === "codex" && !codexConnected) return;
   if (!localStorage.getItem(CODE_KEY)) { showAccessGate(); return; }
-  $("prompt").value = ""; addMessage("user", prompt); const pending = addMessage("assistant", "전송 중…", "pending", false); $("send").disabled = true;
+  $("prompt").value = ""; addMessage("user", prompt); const pending = addMessage("assistant", "전송 중…", "pending", false); $("send").disabled = true; sending = true;
   try { if (mode === "web") await submitWeb(prompt, pending); else await submitCodex(pending); }
   catch (error) { pending.classList.remove("pending"); pending.textContent = `오류: ${error.message}`; }
-  finally { if (mode === "web" || codexConnected) $("send").disabled = false; $("prompt").focus(); }
+  finally { sending = false; if (mode === "web" || codexConnected) $("send").disabled = false; $("prompt").focus(); }
 });
 $("newChat").addEventListener("click", () => { histories[mode] = []; if (mode === "web") { webThreadId = crypto.randomUUID(); localStorage.setItem("familyGptPublicThreadId", webThreadId); } renderMessages(); });
 $("prompt").addEventListener("keydown", (event) => { if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); $("composer").requestSubmit(); } });
