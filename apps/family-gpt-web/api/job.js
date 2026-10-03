@@ -9,6 +9,6 @@ export default async function handler(req, res) {
   if (!job) return res.status(404).json({ error: "Job not found" });
   const stale = staleJobPatch(job);
   if (stale) job = (await finishJob(id, stale)) || job;
-  const { prompt, ...safe } = job;
+  const { prompt, leaseId, ...safe } = job;
   return res.status(200).json(safe);
 }

@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import crypto from "node:crypto";
 import { beforeEach, test } from "node:test";
 import { getCache } from "@vercel/functions";
-import { GENERATING_MAX_MS, enqueueJob, getJob, leaseNextJob } from "../lib/runtime.js";
+import { GENERATING_MAX_MS, enqueueJob, finishJob, getJob, leaseNextJob } from "../lib/runtime.js";
 
 const cache = getCache({ namespace: "family-gpt-web-v3" });
 const queuedJob = (extra = {}) => ({ id: crypto.randomUUID(), threadId: "thread-test", prompt: "hi", model: "gpt-5.6-sol", status: "queued", createdAt: Date.now(), updatedAt: Date.now(), ...extra });
@@ -26,4 +26,27 @@ test("leaseNextJob keeps a generating job that is still within its window", asyn
   assert.equal(await leaseNextJob(), null);
   assert.equal((await getJob(running.id)).status, "generating");
   assert.deepEqual(await cache.get("queue"), [running.id]);
+});
+
+test("concurrent enqueues all end up in the queue", async () => {
+  const jobs = Array.from({ length: 5 }, () => queuedJob());
+  await Promise.all(jobs.map((job) => enqueueJob(job)));
+  assert.deepEqual(new Set(await cache.get("queue")), new Set(jobs.map((job) => job.id)));
+});
+
+test("concurrent pulls lease a queued job only once", async () => {
+  const job = queuedJob();
+  await enqueueJob(job);
+  const leases = await Promise.all([leaseNextJob(), leaseNextJob()]);
+  assert.equal(leases.filter(Boolean).length, 1);
+  assert.equal((await getJob(job.id)).leaseId, leases.find(Boolean).leaseId);
+});
+
+test("finishJob removes the job from the queue but keeps the others", async () => {
+  const done = queuedJob();
+  const waiting = queuedJob();
+  await enqueueJob(done);
+  await enqueueJob(waiting);
+  assert.equal((await finishJob(done.id, { status: "completed", output: "ok" })).status, "completed");
+  assert.deepEqual(await cache.get("queue"), [waiting.id]);
 });

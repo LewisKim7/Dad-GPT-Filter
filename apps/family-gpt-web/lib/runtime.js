@@ -1,3 +1,4 @@
+import crypto from "node:crypto";
 import { getCache } from "@vercel/functions";
 import { safeEqualHex, sha256Hex } from "./access.js";
 
@@ -6,6 +7,8 @@ const WORKER_TOKEN_HASH = "32c454da3f3fff65b577751c838030ff23d934697b5ec6ca08ae8
 const JOB_TTL_SECONDS = 60 * 60;
 const WORKER_TTL_SECONDS = 60;
 const QUEUE_KEY = "queue";
+const QUEUE_LIMIT = 20;
+const ENQUEUE_ATTEMPTS = 3;
 const DAILY_TTL_SECONDS = 2 * 24 * 60 * 60;
 const DEFAULT_DAILY_LIMIT = 200;
 // A queued job that no worker leased within this window is failed with a clear message.
@@ -56,12 +59,33 @@ export async function workerOnline() {
   return { online: fresh && status.ready === true, status };
 }
 
-export async function enqueueJob(job) {
-  await cache.set(`job:${job.id}`, job, { ttl: JOB_TTL_SECONDS });
+// Runtime Cache has no atomic read-modify-write or compare-and-set, so concurrent queue
+// writers can still overwrite each other. To keep that window small, every queue change
+// re-reads the queue right before writing and applies only its own additions/removals,
+// enqueueJob verifies its id landed (retrying a few times), and leases are confirmed by
+// re-reading the job. A job that is still lost is failed after QUEUED_MAX_MS when polled.
+async function readQueue() {
   const current = await cache.get(QUEUE_KEY);
-  const queue = Array.isArray(current) ? current.filter((id) => typeof id === "string") : [];
-  const next = [...queue.filter((id) => id !== job.id), job.id].slice(-20);
+  return Array.isArray(current) ? current.filter((id) => typeof id === "string") : [];
+}
+
+async function updateQueue({ add = [], remove = [] } = {}) {
+  const queue = await readQueue();
+  const drop = new Set([...remove, ...add]);
+  const next = [...queue.filter((id) => !drop.has(id)), ...add].slice(-QUEUE_LIMIT);
+  if (next.length === queue.length && next.every((id, index) => id === queue[index])) return queue;
   await cache.set(QUEUE_KEY, next, { ttl: JOB_TTL_SECONDS });
+  return next;
+}
+
+export async function enqueueJob(job) {
+  await setJob(job.id, job);
+  for (let attempt = 1; attempt <= ENQUEUE_ATTEMPTS; attempt += 1) {
+    await updateQueue({ add: [job.id] });
+    if ((await readQueue()).includes(job.id)) return;
+    // Another writer replaced the queue in between; back off a little and add again.
+    await new Promise((resolve) => setTimeout(resolve, 20 + Math.floor(Math.random() * 60)));
+  }
 }
 
 export async function getJob(id) {
@@ -82,34 +106,28 @@ export async function setJob(id, value) {
   await cache.set(`job:${id}`, value, { ttl: JOB_TTL_SECONDS });
 }
 
-async function setQueue(queue) {
-  await cache.set(QUEUE_KEY, queue.slice(-20), { ttl: JOB_TTL_SECONDS });
-}
-
 export async function leaseNextJob() {
-  const current = await cache.get(QUEUE_KEY);
-  const queue = Array.isArray(current) ? [...current] : [];
-  let changed = false;
-  const keep = [];
+  const queue = await readQueue();
+  const remove = [];
   let leased = null;
 
   for (const id of queue) {
     const job = await getJob(id);
-    if (!job) { changed = true; continue; }
-    if (["completed", "failed", "uncertain"].includes(job.status)) { changed = true; continue; }
+    if (!job) { remove.push(id); continue; }
+    if (["completed", "failed", "uncertain"].includes(job.status)) { remove.push(id); continue; }
     // Expire stale queued jobs and generating jobs whose worker never reported back,
     // so they do not occupy queue slots until the queue key itself expires.
     const stale = staleJobPatch(job);
-    if (stale) { await setJob(id, { ...job, ...stale, updatedAt: Date.now() }); changed = true; continue; }
+    if (stale) { await setJob(id, { ...job, ...stale, updatedAt: Date.now() }); remove.push(id); continue; }
     if (!leased && job.status === "queued") {
-      leased = { ...job, status: "generating", startedAt: Date.now(), updatedAt: Date.now() };
-      await setJob(id, leased);
-      keep.push(id);
-      continue;
+      const leaseId = crypto.randomUUID();
+      const candidate = { ...job, status: "generating", startedAt: Date.now(), updatedAt: Date.now(), leaseId };
+      await setJob(id, candidate);
+      // A concurrent pull may have leased the same job; only the last writer keeps it.
+      if ((await getJob(id))?.leaseId === leaseId) leased = candidate;
     }
-    keep.push(id);
   }
-  if (changed || keep.length !== queue.length) await setQueue(keep);
+  if (remove.length) await updateQueue({ remove });
   return leased;
 }
 
@@ -118,7 +136,6 @@ export async function finishJob(id, patch) {
   if (!current) return null;
   const next = { ...current, ...patch, updatedAt: Date.now() };
   await setJob(id, next);
-  const queue = await cache.get(QUEUE_KEY);
-  if (Array.isArray(queue) && queue.includes(id)) await setQueue(queue.filter((value) => value !== id));
+  await updateQueue({ remove: [id] });
   return next;
 }
