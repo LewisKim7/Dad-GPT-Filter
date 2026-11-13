@@ -17,9 +17,9 @@
 
 ## 로컬 실행·검증
 
-| 앱 | 도구 | 검증 명령 | 2026-10-01 검증 결과 |
+| 앱 | 도구 | 검증 명령 | 2026-11-13 검증 결과 |
 |---|---|---|---|
-| family-gpt-web | npm | `npm install && npm run check` (구문 검사, lockfile 없음) | 자동 테스트 없음 |
+| family-gpt-web | npm | `npm ci && npm run check && npm test` (구문 검사 + `node --test`, lockfile 있음) | check 통과, test 24/24 통과 |
 | chatgpt-web-coder | — | 문서 저장소, 검증 대상 아님 | — |
 
 ## 원칙
