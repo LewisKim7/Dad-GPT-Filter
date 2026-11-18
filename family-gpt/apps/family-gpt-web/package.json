@@ -1,0 +1,17 @@
+{
+  "name": "family-gpt-web",
+  "private": true,
+  "version": "0.4.0",
+  "type": "module",
+  "scripts": {
+    "test": "node --test test/access.test.js test/codex-api.test.js test/codex-lib.test.js test/runtime.test.js test/app.test.js test/worker.test.js",
+    "check": "node --check lib/access.js && node --check lib/runtime.js && node --check lib/codex.js && node --check api/chat.js && node --check api/job.js && node --check api/health.js && node --check api/worker.js && node --check api/codex.js && node --check api/codex-auth.js && node --check public/app.js"
+  },
+  "engines": { "node": ">=20" },
+  "dependencies": {
+    "@openai-oauth/ai-sdk": "2.0.0",
+    "@openai-oauth/core": "2.0.0",
+    "@vercel/functions": "3.11.2",
+    "ai": "6.0.116"
+  }
+}
