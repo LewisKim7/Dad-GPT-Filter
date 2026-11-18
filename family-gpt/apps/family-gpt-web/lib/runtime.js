@@ -1,0 +1,141 @@
+import crypto from "node:crypto";
+import { getCache } from "@vercel/functions";
+import { safeEqualHex, sha256Hex } from "./access.js";
+
+const cache = getCache({ namespace: "family-gpt-web-v3" });
+const WORKER_TOKEN_HASH = "32c454da3f3fff65b577751c838030ff23d934697b5ec6ca08ae8baffd08a53b";
+const JOB_TTL_SECONDS = 60 * 60;
+const WORKER_TTL_SECONDS = 60;
+const QUEUE_KEY = "queue";
+const QUEUE_LIMIT = 20;
+const ENQUEUE_ATTEMPTS = 3;
+const DAILY_TTL_SECONDS = 2 * 24 * 60 * 60;
+const DEFAULT_DAILY_LIMIT = 200;
+// A queued job that no worker leased within this window is failed with a clear message.
+export const QUEUED_MAX_MS = 15 * 60_000;
+// Worker request timeout is 900s; allow a minute for the result POST and retries.
+export const GENERATING_MAX_MS = 16 * 60_000;
+export const DAILY_LIMIT_ERROR = "오늘 사용할 수 있는 질문 수를 모두 사용했습니다. 내일 다시 시도하세요.";
+const STALE_QUEUED_ERROR = "Mac mini worker가 요청을 받지 못해 처리되지 않았습니다. 잠시 후 다시 보내 주세요.";
+const STALE_GENERATING_ERROR = "응답 연결이 중간에 끊겼습니다. 중복 전송을 막기 위해 자동 재전송하지 않았습니다.";
+
+export function configuredModel() {
+  return "gpt-5.6-sol";
+}
+
+export function workerAuthorized(req) {
+  const token = String(req.headers.authorization || "").replace(/^Bearer\s+/i, "").trim();
+  if (!token) return false;
+  return safeEqualHex(sha256Hex(token), WORKER_TOKEN_HASH);
+}
+
+function dailyLimit() {
+  const value = Number.parseInt(String(process.env.FAMILY_DAILY_LIMIT || ""), 10);
+  return Number.isFinite(value) && value > 0 ? value : DEFAULT_DAILY_LIMIT;
+}
+
+// Best-effort global daily cap shared by GPT Web jobs and Codex calls (not atomic across instances).
+export async function consumeDailyQuota(now = Date.now()) {
+  const day = new Date(now + 9 * 60 * 60_000).toISOString().slice(0, 10); // KST day
+  const key = `daily:${day}`;
+  const used = Number(await cache.get(key)) || 0;
+  if (used >= dailyLimit()) return false;
+  await cache.set(key, used + 1, { ttl: DAILY_TTL_SECONDS });
+  return true;
+}
+
+export async function getWorkerStatus() {
+  return (await cache.get("worker:status")) || null;
+}
+
+export async function setWorkerStatus(status) {
+  await cache.set("worker:status", { ...status, lastSeen: Date.now() }, { ttl: WORKER_TTL_SECONDS });
+}
+
+export async function workerOnline() {
+  const status = await getWorkerStatus();
+  if (!status) return { online: false, status: null };
+  const fresh = Date.now() - Number(status.lastSeen || 0) < 20_000;
+  return { online: fresh && status.ready === true, status };
+}
+
+// Runtime Cache has no atomic read-modify-write or compare-and-set, so concurrent queue
+// writers can still overwrite each other. To keep that window small, every queue change
+// re-reads the queue right before writing and applies only its own additions/removals,
+// enqueueJob verifies its id landed (retrying a few times), and leases are confirmed by
+// re-reading the job. A job that is still lost is failed after QUEUED_MAX_MS when polled.
+async function readQueue() {
+  const current = await cache.get(QUEUE_KEY);
+  return Array.isArray(current) ? current.filter((id) => typeof id === "string") : [];
+}
+
+async function updateQueue({ add = [], remove = [] } = {}) {
+  const queue = await readQueue();
+  const drop = new Set([...remove, ...add]);
+  const next = [...queue.filter((id) => !drop.has(id)), ...add].slice(-QUEUE_LIMIT);
+  if (next.length === queue.length && next.every((id, index) => id === queue[index])) return queue;
+  await cache.set(QUEUE_KEY, next, { ttl: JOB_TTL_SECONDS });
+  return next;
+}
+
+export async function enqueueJob(job) {
+  await setJob(job.id, job);
+  for (let attempt = 1; attempt <= ENQUEUE_ATTEMPTS; attempt += 1) {
+    await updateQueue({ add: [job.id] });
+    if ((await readQueue()).includes(job.id)) return;
+    // Another writer replaced the queue in between; back off a little and add again.
+    await new Promise((resolve) => setTimeout(resolve, 20 + Math.floor(Math.random() * 60)));
+  }
+}
+
+export async function getJob(id) {
+  return (await cache.get(`job:${id}`)) || null;
+}
+
+export function staleJobPatch(job, now = Date.now()) {
+  if (job?.status === "queued" && now - Number(job.createdAt || 0) > QUEUED_MAX_MS) {
+    return { status: "failed", error: STALE_QUEUED_ERROR, completedAt: now };
+  }
+  if (job?.status === "generating" && now - Number(job.startedAt || 0) > GENERATING_MAX_MS) {
+    return { status: "uncertain", error: STALE_GENERATING_ERROR };
+  }
+  return null;
+}
+
+export async function setJob(id, value) {
+  await cache.set(`job:${id}`, value, { ttl: JOB_TTL_SECONDS });
+}
+
+export async function leaseNextJob() {
+  const queue = await readQueue();
+  const remove = [];
+  let leased = null;
+
+  for (const id of queue) {
+    const job = await getJob(id);
+    if (!job) { remove.push(id); continue; }
+    if (["completed", "failed", "uncertain"].includes(job.status)) { remove.push(id); continue; }
+    // Expire stale queued jobs and generating jobs whose worker never reported back,
+    // so they do not occupy queue slots until the queue key itself expires.
+    const stale = staleJobPatch(job);
+    if (stale) { await setJob(id, { ...job, ...stale, updatedAt: Date.now() }); remove.push(id); continue; }
+    if (!leased && job.status === "queued") {
+      const leaseId = crypto.randomUUID();
+      const candidate = { ...job, status: "generating", startedAt: Date.now(), updatedAt: Date.now(), leaseId };
+      await setJob(id, candidate);
+      // A concurrent pull may have leased the same job; only the last writer keeps it.
+      if ((await getJob(id))?.leaseId === leaseId) leased = candidate;
+    }
+  }
+  if (remove.length) await updateQueue({ remove });
+  return leased;
+}
+
+export async function finishJob(id, patch) {
+  const current = await getJob(id);
+  if (!current) return null;
+  const next = { ...current, ...patch, updatedAt: Date.now() };
+  await setJob(id, next);
+  await updateQueue({ remove: [id] });
+  return next;
+}

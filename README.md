@@ -14,6 +14,8 @@ Samsung Internet에서 ChatGPT Project **"아빠의 GPT"**를 아버지가 단�
 
 **Raw URL, repo 이름, `dad-gpt-filter.txt` 경로는 절대 바꾸지 않습니다.** UI가 바뀌면 파일 내용만 수정합니다.
 
+> **같은 저장소의 `family-gpt/` 폴더**(2026-11-18 `LewisKim7/family-gpt`에서 이력째 이동)는 가족용 GPT 웹·도구입니다. 그 폴더 작업은 저장소 루트(`dad-gpt-filter.txt`, 이 README 등)를 건드리지 않습니다. 필터 구독 주소는 위 Raw URL 그대로입니다.
+
 ## 현재 상태: Samsung 실기기 성공
 
 - 실기기 확인: 2026-09-26 KST
